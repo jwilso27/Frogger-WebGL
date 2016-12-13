@@ -78,27 +78,27 @@ function checkKey(e) {
     if (e.keyCode == '38') {
         // up arrow
         if (tFrogy < .3) {
-            tFrogy = tFrogy + .2;
+            tFrogy = tFrogy + .15;
         }
     }
     else if (e.keyCode == '40') {
         // down arrow
         if (tFrogy > -.3) {
-            tFrogy = tFrogy - .2;
+            tFrogy = tFrogy - .15;
         }
         
     }
     else if (e.keyCode == '37') {
        // left arrow
        if (tFrogx > -.7) {
-            tFrogx = tFrogx - .2;
+            tFrogx = tFrogx - .15;
        }
        
     }
     else if (e.keyCode == '39') {
        // right arrow
        if (tFrogx < .7) {
-            tFrogx = tFrogx + .2;
+            tFrogx = tFrogx + .15;
        }
        
     }
@@ -109,30 +109,7 @@ function render() {
     
     gl.clear( gl.COLOR_BUFFER_BIT );
     
-    gl.enableVertexAttribArray( vPosition );
-    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
-    gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
     
-    
-    theta = 45.0; // in degree
-    var scaling_l = .1;
-    var scaling_s = 0.025;
-    var rm = rotateZ(theta);
-    var sm = scalem(scaling_l, scaling_l, scaling_l);
-    var tm = translate(tFrogx, tFrogy, 0.0);
-
-    ctm = mat4();
-    ctm = mult(rm, ctm);
-    ctm = mult(sm, ctm);
-    ctm = mult(tm, ctm);
-    
-    // orthogonal projection
-    
-    gl.uniform3fv( baseColorLoc, vec3( 0.2, 1.0, 0.2 ) );
-    gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
-
-    gl.drawArrays( gl.TRIANGLE_STRIP, 0, 4 );
-
     gl.enableVertexAttribArray( vLogPos );
     gl.bindBuffer(gl.ARRAY_BUFFER, logBuff);
     gl.vertexAttribPointer(vLogPos, 2, gl.FLOAT, false, 0, 0);
@@ -156,6 +133,31 @@ function render() {
     gl.uniform3fv( baseColorLoc, vec3( .4, .18, 0.0 ) );
     gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
     gl.drawArrays( gl.TRIANGLE_FAN, 0, 4);
+
+
+    gl.enableVertexAttribArray( vPosition );
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
+    gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
+    
+    
+    theta = 45.0; // in degree
+    var scaling_l = .1;
+    var scaling_s = 0.025;
+    var rm = rotateZ(theta);
+    var sm = scalem(scaling_l, scaling_l, scaling_l);
+    var tm = translate(tFrogx, tFrogy, 0.0);
+
+    ctm = mat4();
+    ctm = mult(rm, ctm);
+    ctm = mult(sm, ctm);
+    ctm = mult(tm, ctm);
+    
+    // orthogonal projection
+    
+    gl.uniform3fv( baseColorLoc, vec3( 0.2, 1.0, 0.2 ) );
+    gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+
+    gl.drawArrays( gl.TRIANGLE_STRIP, 0, 4 );
 
     window.requestAnimFrame(render);
 }
