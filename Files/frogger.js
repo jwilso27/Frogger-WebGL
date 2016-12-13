@@ -135,6 +135,7 @@ function initBoard() {
             default:
                 for( var j; j<18; j++ ) board[i][j] = 0;
                 break;
+        }
     }
 
 }
