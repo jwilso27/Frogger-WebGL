@@ -32,6 +32,7 @@ var carBuff;
 var vLogPos;
 var vCarPos;
 var vPosition;
+var currLevel = 1;
 
 window.onload = function init()
 {
@@ -147,10 +148,9 @@ function initBoard() {
 }
 
 function render() {
-    
     gl.clear( gl.COLOR_BUFFER_BIT );
-    
-    var tm, sm, rm, scaling_l, scaling_s;
+if(currLevel==1) {
+ var tm, sm, rm, scaling_l, scaling_s;
     gl.enableVertexAttribArray( vLogPos );
     gl.bindBuffer(gl.ARRAY_BUFFER, logBuff);
     gl.vertexAttribPointer(vLogPos, 2, gl.FLOAT, false, 0, 0);
@@ -245,7 +245,112 @@ function render() {
     //console.log(tFrogy)
     if(tFrogy == .4) {
         alert("You won!");
-        tFrogy = tFrogy + .01;
+        tFrogy = -.4;
+        currLevel = 2;
+    }   
+} else if(currLevel == 2) {
+    var tm, sm, rm, scaling_l, scaling_s;
+    gl.enableVertexAttribArray( vLogPos );
+    gl.bindBuffer(gl.ARRAY_BUFFER, logBuff);
+    gl.vertexAttribPointer(vLogPos, 2, gl.FLOAT, false, 0, 0);
+
+
+    //draw logs
+    for(var i = 0; i < 6; i++) {
+        if(tLogy[i] == .07) {
+            tLogx[i] = tLogx[i] + .01;
+            board[5][((tLogx[i] + 1) * 10).toFixed(0)] = 1;
+        }
+        tLogx[i] = tLogx[i] + .02;
+        if(tLogx[i] > 1) {
+            tLogx[i] = tLogx[i] - 3;
+         }  
     }
+
+    for(var i=0; i < 6; i++) {
+        tm = translate(tLogx[i], tLogy[i], 0.0);
+        rm = rotateZ(0);
+        scaling_l = 1.2;
+        sm = scalem(scaling_l, scaling_l, scaling_l);
+        ctm = mat4();
+        ctm = mult(rm, ctm);
+        ctm = mult(sm, ctm);
+        ctm = mult(tm, ctm);
+
+        gl.uniform3fv( baseColorLoc, vec3( .4, .18, 0.0 ) );
+        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+        gl.drawArrays( gl.TRIANGLE_FAN, 0, 4); 
+    }
+
+
+    //draw cars
+
+    gl.enableVertexAttribArray( vCarPos );
+    gl.bindBuffer(gl.ARRAY_BUFFER, carBuff);
+    gl.vertexAttribPointer( vCarPos, 2, gl.FLOAT, false, 0, 0 );
+    
+    for(var i=0; i < 8; i++) {
+        tCarx[i] = tCarx[i] + .025;
+        if (tCarx[i] > 1) {
+            tCarx[i] = tCarx[i] - 2.5;
+        }
+        if(((tCarx[i] + 1) * 10) < 19)
+            board[1][((tCarx[i] + 1) * 10).toFixed(0)] = 0;
+        theta = 0.0; // in degree
+        scaling_l = .4;
+        scaling_s = 0.0125;
+        rm = rotateZ(theta);
+        sm = scalem(scaling_l, scaling_l, scaling_l);
+        tm = translate(tCarx[i], tCary[i], 0.0);
+
+        ctm = mat4();
+        ctm = mult(rm, ctm);
+        ctm = mult(sm, ctm);
+        ctm = mult(tm, ctm);
+        
+        // orthogonal projection
+        
+        gl.uniform3fv( baseColorLoc, vec3( 1.0, .2, 0.2 ) );
+        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+
+        gl.drawArrays( gl.TRIANGLE_FAN, 0, 4 );
+    }
+
+    gl.enableVertexAttribArray( vPosition );
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
+    gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
+    
+    
+    theta = 45.0; // in degree
+    scaling_l = .05;
+    scaling_s = 0.0125;
+    rm = rotateZ(theta);
+    sm = scalem(scaling_l, scaling_l, scaling_l);
+    tm = translate(tFrogx, tFrogy, 0.0);
+
+    ctm = mat4();
+    ctm = mult(rm, ctm);
+    ctm = mult(sm, ctm);
+    ctm = mult(tm, ctm);
+    
+    // orthogonal projection
+    
+    gl.uniform3fv( baseColorLoc, vec3( 0.2, 1.0, 0.2 ) );
+    gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+
+    gl.drawArrays( gl.TRIANGLE_STRIP, 0, 4 );
+
+    //for(var i=0; i<9; i++) console.log(board[i])
+    //console.log(tFrogy)
+    if(tFrogy == .4) {
+        alert("You won!");
+        tFrogy = tFrogy + .01;
+        currLevel = 1;
+    }
+}
+    
+
+    
+    
     window.requestAnimFrame(render);
 }
