@@ -10,22 +10,10 @@ var ctm;
 var tFrogx = 0.0;
 var tFrogy = -0.4;
 var tLogx = [ 0.0, -0.8, .3, -.3, .6, -.6 ];
-var tLogy = [ -0.02 , -0.02, .07, .07, .15, .15];
+var tLogy = [ 0.0 , 0.0, .1, .1, .2, .2];
 var tCarx = [0, .4, -.8, .9, .1, .6, -.4, -.9];
+var tCary = [-.3, -.3, -.3, -.3, -.2, -.2, -.2, -.2];
 var board = [];
-var tCary = [-.35, -.35, -.35, -.35, -.25, -.25, -.25, -.25];
-var recVert = [
-        vec2( 0,  .05 ),
-        vec2( .2,  .05 ),
-        vec2( .2, 0),
-        vec2( 0,  0 ),
-    ];
-var carVert = [
-        vec2( .2, 0),
-        vec2( 0,  0 ),
-        vec2( 0,  .2 ),
-        vec2( .2,  .2 ),
-    ];
 var bufferId;
 var logBuff;
 var carBuff;
@@ -34,6 +22,7 @@ var vCarPos;
 var vPosition;
 var lives;
 var currLevel = 1;
+var logSpeed, carSpeed;
 
 window.onload = function init()
 {
@@ -53,10 +42,10 @@ window.onload = function init()
     gl.useProgram( program );
 
     var vertices = [
-        vec2(  0,  1 ),
-        vec2(  1,  0 ),
-        vec2( -1,  0 ),
-        vec2(  0, -1 )
+        vec2(-.5, .5 ),
+        vec2(-.5, -.5 ),
+        vec2( .5, -.5 ),
+        vec2( .5, .5 )
     ];
 
     // Load the data into the GPU
@@ -67,15 +56,15 @@ window.onload = function init()
 
     logBuff = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, logBuff );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(recVert), gl.STATIC_DRAW );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
     vLogPos = gl.getAttribLocation(program, "vPosition");
-    // Associate out shader variables with our data buffer
 
     carBuff = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, carBuff );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(carVert), gl.STATIC_DRAW );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
     vCarPos = gl.getAttribLocation(program, "vPosition");
 
+    // Associate out shader variables with our data buffer
     baseColorLoc = gl.getUniformLocation( program, "baseColor" );
     ctmLoc = gl. getUniformLocation(program, "ctMatrix");
 
@@ -157,212 +146,137 @@ function initBoard() {
 
 }
 
+function drawFrog() {
+
+    var tm, sm, rm, scaling_l, scaling_s;
+
+    // draw frog
+    gl.enableVertexAttribArray( vPosition );
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
+    gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
+
+    theta = 0.0; // in degree
+    scaling_l = .05;
+    scaling_s = 0.0125;
+    rm = rotateZ(theta);
+    sm = scalem(scaling_l, scaling_l, scaling_l);
+    tm = translate(tFrogx, tFrogy, 0.0);
+
+    ctm = mat4();
+    ctm = mult(rm, ctm);
+    ctm = mult(sm, ctm);
+    ctm = mult(tm, ctm);
+
+    // orthogonal projection
+
+    gl.uniform3fv( baseColorLoc, vec3( 0.2, 1.0, 0.2 ) );
+    gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+
+    gl.drawArrays( gl.TRIANGLE_FAN, 0, 4 );
+
+}
+
+function drawCars() {
+
+    var tm, sm, rm, scale_x, scale_y, scale_z;
+
+    //draw cars
+    gl.enableVertexAttribArray( vCarPos );
+    gl.bindBuffer(gl.ARRAY_BUFFER, carBuff);
+    gl.vertexAttribPointer( vCarPos, 2, gl.FLOAT, false, 0, 0 );
+
+    for(var i=0; i < 8; i++) {
+        tCarx[i] = tCarx[i] + carSpeed;
+        if (tCarx[i] > 1) {
+            tCarx[i] = tCarx[i] - 2.5;
+        }
+        if(((tCarx[i] + 1) * 10) < 19)
+            board[1][((tCarx[i] + 1) * 10).toFixed(0)] = 0;
+
+        scale_x = .2;
+        scale_y = .075;
+        scale_z = .1;
+        sm = scalem(scale_x, scale_y, scale_z);
+        tm = translate(tCarx[i], tCary[i], 0.0);
+
+        ctm = mat4();
+        ctm = mult(sm, ctm);
+        ctm = mult(tm, ctm);
+
+        // orthogonal projection
+
+        gl.uniform3fv( baseColorLoc, vec3( 1.0, .2, 0.2 ) );
+        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+
+        gl.drawArrays( gl.TRIANGLE_FAN, 0, 4 );
+    }
+
+}
+
+function drawLogs() {
+
+    var tm, sm, rm, scale_x, scale_y, scale_z;
+
+    //draw logs
+    gl.enableVertexAttribArray( vLogPos );
+    gl.bindBuffer(gl.ARRAY_BUFFER, logBuff);
+    gl.vertexAttribPointer(vLogPos, 2, gl.FLOAT, false, 0, 0);
+    
+    for(var i = 0; i < 6; i++) {
+        if(tLogy[i] == .07) {
+            tLogx[i] = tLogx[i] + .01;
+            board[5][((tLogx[i] + 1) * 10).toFixed(0)] = 1;
+        }
+        tLogx[i] = tLogx[i] + logSpeed;
+        if(tLogx[i] > 1) {
+            tLogx[i] = tLogx[i] - 3;
+        }  
+    }
+
+    for(var i=0; i < 6; i++) {
+        scale_x = .3;
+        scale_y = .075;
+        scale_z = .1;
+        sm = scalem(scale_x, scale_y, scale_z);
+        tm = translate(tLogx[i], tLogy[i], 0.0);
+
+        ctm = mat4();
+        ctm = mult(sm, ctm);
+        ctm = mult(tm, ctm);
+
+        gl.uniform3fv( baseColorLoc, vec3( .4, .18, 0.0 ) );
+        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+        gl.drawArrays( gl.TRIANGLE_FAN, 0, 4); 
+    }
+
+}
+
 function render() {
 
     initBoard();
 
     gl.clear( gl.COLOR_BUFFER_BIT );
+
     if(currLevel==1) {
-        var tm, sm, rm, scaling_l, scaling_s;
-        gl.enableVertexAttribArray( vLogPos );
-        gl.bindBuffer(gl.ARRAY_BUFFER, logBuff);
-        gl.vertexAttribPointer(vLogPos, 2, gl.FLOAT, false, 0, 0);
-
-
-        //draw logs
-        for(var i = 0; i < 6; i++) {
-            if(tLogy[i] == .07) {
-                tLogx[i] = tLogx[i] + .01;
-                board[5][((tLogx[i] + 1) * 10).toFixed(0)] = 1;
-            }
-            tLogx[i] = tLogx[i] + .01;
-            if(tLogx[i] > 1) {
-                tLogx[i] = tLogx[i] - 3;
-            }  
-        }
-
-        for(var i=0; i < 6; i++) {
-            tm = translate(tLogx[i], tLogy[i], 0.0);
-            rm = rotateZ(0);
-            scaling_l = 1.2;
-            sm = scalem(scaling_l, scaling_l, scaling_l);
-            ctm = mat4();
-            ctm = mult(rm, ctm);
-            ctm = mult(sm, ctm);
-            ctm = mult(tm, ctm);
-
-            gl.uniform3fv( baseColorLoc, vec3( .4, .18, 0.0 ) );
-            gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
-            gl.drawArrays( gl.TRIANGLE_FAN, 0, 4); 
-        }
-
-
-        //draw cars
-
-        gl.enableVertexAttribArray( vCarPos );
-        gl.bindBuffer(gl.ARRAY_BUFFER, carBuff);
-        gl.vertexAttribPointer( vCarPos, 2, gl.FLOAT, false, 0, 0 );
-
-        for(var i=0; i < 8; i++) {
-            tCarx[i] = tCarx[i] + .015;
-            if (tCarx[i] > 1) {
-                tCarx[i] = tCarx[i] - 2.5;
-            }
-            if(((tCarx[i] + 1) * 10) < 19)
-                board[1][((tCarx[i] + 1) * 10).toFixed(0)] = 0;
-            //console.log(board[1]);
-            theta = 0.0; // in degree
-            scaling_l = .4;
-            scaling_s = 0.0125;
-            rm = rotateZ(theta);
-            sm = scalem(scaling_l, scaling_l, scaling_l);
-            tm = translate(tCarx[i], tCary[i], 0.0);
-
-            ctm = mat4();
-            ctm = mult(rm, ctm);
-            ctm = mult(sm, ctm);
-            ctm = mult(tm, ctm);
-
-            // orthogonal projection
-
-            gl.uniform3fv( baseColorLoc, vec3( 1.0, .2, 0.2 ) );
-            gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
-
-            gl.drawArrays( gl.TRIANGLE_FAN, 0, 4 );
-        }
-
-        gl.enableVertexAttribArray( vPosition );
-        gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
-        gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
-
-
-        theta = 45.0; // in degree
-        scaling_l = .05;
-        scaling_s = 0.0125;
-        rm = rotateZ(theta);
-        sm = scalem(scaling_l, scaling_l, scaling_l);
-        tm = translate(tFrogx, tFrogy, 0.0);
-
-        ctm = mat4();
-        ctm = mult(rm, ctm);
-        ctm = mult(sm, ctm);
-        ctm = mult(tm, ctm);
-
-        // orthogonal projection
-
-        gl.uniform3fv( baseColorLoc, vec3( 0.2, 1.0, 0.2 ) );
-        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
-
-        gl.drawArrays( gl.TRIANGLE_STRIP, 0, 4 );
-
-        //for(var i=0; i<9; i++) console.log(board[i])
-        //console.log(tFrogy)
-        if(tFrogy == .4) {
-            alert("You won!");
-            tFrogy = -.4;
-            currLevel = 2;
-        }   
-    } else if(currLevel == 2) {
-        var tm, sm, rm, scaling_l, scaling_s;
-        gl.enableVertexAttribArray( vLogPos );
-        gl.bindBuffer(gl.ARRAY_BUFFER, logBuff);
-        gl.vertexAttribPointer(vLogPos, 2, gl.FLOAT, false, 0, 0);
-
-
-        //draw logs
-        for(var i = 0; i < 6; i++) {
-            if(tLogy[i] == .07) {
-                tLogx[i] = tLogx[i] + .01;
-                board[5][((tLogx[i] + 1) * 10).toFixed(0)] = 1;
-            }
-            tLogx[i] = tLogx[i] + .02;
-            if(tLogx[i] > 1) {
-                tLogx[i] = tLogx[i] - 3;
-            }  
-        }
-
-        for(var i=0; i < 6; i++) {
-            tm = translate(tLogx[i], tLogy[i], 0.0);
-            rm = rotateZ(0);
-            scaling_l = 1.2;
-            sm = scalem(scaling_l, scaling_l, scaling_l);
-            ctm = mat4();
-            ctm = mult(rm, ctm);
-            ctm = mult(sm, ctm);
-            ctm = mult(tm, ctm);
-
-            gl.uniform3fv( baseColorLoc, vec3( .4, .18, 0.0 ) );
-            gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
-            gl.drawArrays( gl.TRIANGLE_FAN, 0, 4); 
-        }
-
-
-        //draw cars
-
-        gl.enableVertexAttribArray( vCarPos );
-        gl.bindBuffer(gl.ARRAY_BUFFER, carBuff);
-        gl.vertexAttribPointer( vCarPos, 2, gl.FLOAT, false, 0, 0 );
-
-        for(var i=0; i < 8; i++) {
-            tCarx[i] = tCarx[i] + .025;
-            if (tCarx[i] > 1) {
-                tCarx[i] = tCarx[i] - 2.5;
-            }
-            if(((tCarx[i] + 1) * 10) < 19)
-                board[1][((tCarx[i] + 1) * 10).toFixed(0)] = 0;
-            theta = 0.0; // in degree
-            scaling_l = .4;
-            scaling_s = 0.0125;
-            rm = rotateZ(theta);
-            sm = scalem(scaling_l, scaling_l, scaling_l);
-            tm = translate(tCarx[i], tCary[i], 0.0);
-
-            ctm = mat4();
-            ctm = mult(rm, ctm);
-            ctm = mult(sm, ctm);
-            ctm = mult(tm, ctm);
-
-            // orthogonal projection
-
-            gl.uniform3fv( baseColorLoc, vec3( 1.0, .2, 0.2 ) );
-            gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
-
-            gl.drawArrays( gl.TRIANGLE_FAN, 0, 4 );
-        }
-
-        gl.enableVertexAttribArray( vPosition );
-        gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
-        gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
-
-
-        theta = 45.0; // in degree
-        scaling_l = .05;
-        scaling_s = 0.0125;
-        rm = rotateZ(theta);
-        sm = scalem(scaling_l, scaling_l, scaling_l);
-        tm = translate(tFrogx, tFrogy, 0.0);
-
-        ctm = mat4();
-        ctm = mult(rm, ctm);
-        ctm = mult(sm, ctm);
-        ctm = mult(tm, ctm);
-
-        // orthogonal projection
-
-        gl.uniform3fv( baseColorLoc, vec3( 0.2, 1.0, 0.2 ) );
-        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
-
-        gl.drawArrays( gl.TRIANGLE_STRIP, 0, 4 );
-
-        //for(var i=0; i<9; i++) console.log(board[i])
-        //console.log(tFrogy)
-        if(tFrogy == .4) {
-            alert("You won!");
-            tFrogy = -.4;
-            currLevel = 1;
-        }
-
+        logSpeed = .01;
+        carSpeed = .015;
+    } else if(currLevel==2) {
+        logSpeed = .02;
+        carSpeed = .025;
     }
+
+    drawFrog();
+    drawLogs();
+    drawCars();
+
+    //for(var i=0; i<9; i++) console.log(board[i])
+    //console.log(tFrogy)
+    if(tFrogy == .4) {
+        alert("You won!");
+        tFrogy = -.4;
+        currLevel = 2;
+    }   
+
     checkMovement();
     console.log(lives);
     if(lives > 0) window.requestAnimFrame(render);
