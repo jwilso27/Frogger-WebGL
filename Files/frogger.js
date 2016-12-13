@@ -10,7 +10,7 @@ var ctm;
 var tFrogx = 0.0;
 var tFrogy = -0.4;
 var tLogx = [ 0.0, -0.8, .6, -.6 ];
-var tLogy = [ 0.0 , 0.0, -.15, -.15];
+var tLogy = [ 0.0 , 0.0, .15, .15];
 var tCarx = [0, .4, -.8, .9];
 var tCary = -.3;
 var recVert = [
