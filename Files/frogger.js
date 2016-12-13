@@ -9,6 +9,19 @@ var ctmLoc;
 var ctm;
 var tFrogx = 0.0;
 var tFrogy = -.9;
+var tLogx = 0.0;
+var tLogy = 0.0;
+var recVert = [
+        vec2(  0,  .05 ),
+        vec2(  .25,  .05 ),
+        vec2(.25, 0),
+        vec2( 0,  0 ),
+
+];
+var bufferId;
+var logBuff;
+var vLogPos;
+var vPosition;
 window.onload = function init()
 {
     canvas = document.getElementById( "gl-canvas" );
@@ -34,14 +47,17 @@ window.onload = function init()
     ];
     
     // Load the data into the GPU
-    var bufferId = gl.createBuffer();
+    bufferId = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
+    vPosition = gl.getAttribLocation( program, "vPosition" );
 
+    logBuff = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, logBuff );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(recVert), gl.STATIC_DRAW );
+    vLogPos = gl.getAttribLocation(program, "vPosition");
     // Associate out shader variables with our data buffer
-    var vPosition = gl.getAttribLocation( program, "vPosition" );
-    gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vPosition );
+    
     
     baseColorLoc = gl.getUniformLocation( program, "baseColor" );
     ctmLoc = gl. getUniformLocation(program, "ctMatrix");
@@ -93,6 +109,10 @@ function render() {
     
     gl.clear( gl.COLOR_BUFFER_BIT );
     
+    gl.enableVertexAttribArray( vPosition );
+    gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
+    
     theta = 45.0; // in degree
     var scaling_l = 0.1;
     var scaling_s = 0.025;
@@ -101,10 +121,9 @@ function render() {
     var tm = translate(tFrogx, tFrogy, 0.0);
 
     ctm = mat4();
-ctm = mult(rm, ctm);
-
-ctm = mult(sm, ctm);
-ctm = mult(tm, ctm);
+    ctm = mult(rm, ctm);
+    ctm = mult(sm, ctm);
+    ctm = mult(tm, ctm);
     
     // orthogonal projection
     
@@ -113,5 +132,21 @@ ctm = mult(tm, ctm);
 
     gl.drawArrays( gl.TRIANGLE_STRIP, 0, 4 );
 
+    gl.enableVertexAttribArray( vLogPos );
+    gl.bindBuffer(gl.ARRAY_BUFFER, logBuff);
+    gl.vertexAttribPointer(vLogPos, 2, gl.FLOAT, false, 0, 0);
+
+
+    //draw logs
+
+    var tm = translate(tLogx, tLogy, 0.0);
+    ctm = mat4();
+    ctm = mult(rm, ctm);
+    ctm = mult(sm, ctm);
+    ctm = mult(tm, ctm);
+
+    gl.uniform3fv( baseColorLoc, vec3( 0.2, 1.0, 0.2 ) );
+    gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+    gl.drawArrays( gl.TRIANGLE_FAN, 0, recVert.length);
     window.requestAnimFrame(render);
 }
