@@ -8,7 +8,7 @@ var baseColorLoc;
 var ctmLoc;
 var ctm;
 var tFrogx = 0.0;
-var tFrogy = -.9;
+var tFrogy = -0.4;
 var tLogx = 0.0;
 var tLogy = 0.0;
 var recVert = [
@@ -63,7 +63,7 @@ window.onload = function init()
     ctmLoc = gl. getUniformLocation(program, "ctMatrix");
 
     var pmLoc = gl.getUniformLocation(program, "projMatrix");
-    var pm = ortho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+    var pm = ortho(-1.0, 1.0, -.5, .5, -1.0, 1.0);
     gl.uniformMatrix4fv(pmLoc, false, flatten(pm));
 
     document.onkeydown = checkKey;
@@ -77,13 +77,13 @@ function checkKey(e) {
 
     if (e.keyCode == '38') {
         // up arrow
-        if (tFrogy < .9) {
+        if (tFrogy < .3) {
             tFrogy = tFrogy + .2;
         }
     }
     else if (e.keyCode == '40') {
         // down arrow
-        if (tFrogy > -.7) {
+        if (tFrogy > -.3) {
             tFrogy = tFrogy - .2;
         }
         
@@ -115,7 +115,7 @@ function render() {
     
     
     theta = 45.0; // in degree
-    var scaling_l = 0.1;
+    var scaling_l = .1;
     var scaling_s = 0.025;
     var rm = rotateZ(theta);
     var sm = scalem(scaling_l, scaling_l, scaling_l);
