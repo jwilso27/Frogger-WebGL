@@ -9,11 +9,11 @@ var ctmLoc;
 var ctm;
 var tFrogx = 0.0;
 var tFrogy = -0.4;
-var tLogx = [ 0.0, -0.8, .6, -.6 ];
-var tLogy = [ 0.0 , 0.0, .15, .15];
+var tLogx = [ 0.0, -0.8, .3, -.3, .6, -.6 ];
+var tLogy = [ -0.02 , -0.02, .07, .07, .15, .15];
 var tCarx = [0, .4, -.8, .9];
-var tCary = -.3;
 var board = [];
+var tCary = -.35;
 var recVert = [
         vec2( 0,  .05 ),
         vec2( .2,  .05 ),
@@ -150,14 +150,17 @@ function render() {
 
 
     //draw logs
-    for(var i = 0; i < 4; i++) {
+    for(var i = 0; i < 6; i++) {
+        if(tLogy[i] == .07) {
+            tLogx[i] = tLogx[i] + .01;
+        }
         tLogx[i] = tLogx[i] + .01;
         if(tLogx[i] > 1) {
             tLogx[i] = tLogx[i] - 3;
          }  
     }
 
-    for(var i=0; i < 4; i++) {
+    for(var i=0; i < 6; i++) {
         tm = translate(tLogx[i], tLogy[i], 0.0);
         rm = rotateZ(0);
         scaling_l = 1.2;
@@ -185,7 +188,7 @@ function render() {
             tCarx[i] = tCarx[i] - 2.5;
         }
         theta = 0.0; // in degree
-        scaling_l = .25;
+        scaling_l = .4;
         scaling_s = 0.0125;
         rm = rotateZ(theta);
         sm = scalem(scaling_l, scaling_l, scaling_l);
