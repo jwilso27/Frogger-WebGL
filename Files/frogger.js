@@ -11,15 +11,25 @@ var tFrogx = 0.0;
 var tFrogy = -0.4;
 var tLogx = [ 0.0, -0.8, .6, -.6 ];
 var tLogy = [ 0.0 , 0.0, -.15, -.15];
+var tCarx = [0, .4, -.8, .9];
+var tCary = -.3;
 var recVert = [
         vec2(  0,  .1 ),
         vec2(  .4,  .1 ),
         vec2(.4, 0),
         vec2( 0,  0 ),
     ];
+var carVert = [
+        vec2(  0,  .2 ),
+        vec2(  .3,  .2 ),
+        vec2(.3, 0),
+        vec2( 0,  0 ),
+    ];
 var bufferId;
 var logBuff;
+var carBuff;
 var vLogPos;
+var vCarPos;
 var vPosition;
 
 window.onload = function init()
@@ -58,7 +68,11 @@ window.onload = function init()
     vLogPos = gl.getAttribLocation(program, "vPosition");
     // Associate out shader variables with our data buffer
     
-    
+    carBuff = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, carBuff );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(carVert), gl.STATIC_DRAW );
+    vCarPos = gl.getAttribLocation(program, "vPosition");
+
     baseColorLoc = gl.getUniformLocation( program, "baseColor" );
     ctmLoc = gl. getUniformLocation(program, "ctMatrix");
 
@@ -109,7 +123,7 @@ function render() {
     
     gl.clear( gl.COLOR_BUFFER_BIT );
     
-    
+    var tm, sm, rm, scaling_l, scaling_s;
     gl.enableVertexAttribArray( vLogPos );
     gl.bindBuffer(gl.ARRAY_BUFFER, logBuff);
     gl.vertexAttribPointer(vLogPos, 2, gl.FLOAT, false, 0, 0);
@@ -139,6 +153,36 @@ function render() {
     }
 
 
+    //draw cars
+
+    gl.enableVertexAttribArray( vCarPos );
+    gl.bindBuffer(gl.ARRAY_BUFFER, carBuff);
+    gl.vertexAttribPointer( vCarPos, 2, gl.FLOAT, false, 0, 0 );
+    
+    for(var i=0; i < 4; i++) {
+        tCarx[i] = tCarx[i] + .015;
+        if (tCarx[i] > 1) {
+            tCarx[i] = tCarx[i] - 2.5;
+        }
+        theta = 0.0; // in degree
+        scaling_l = .5;
+        scaling_s = 0.025;
+        rm = rotateZ(theta);
+        sm = scalem(scaling_l, scaling_l, scaling_l);
+        tm = translate(tCarx[i], tCary, 0.0);
+
+        ctm = mat4();
+        ctm = mult(rm, ctm);
+        ctm = mult(sm, ctm);
+        ctm = mult(tm, ctm);
+        
+        // orthogonal projection
+        
+        gl.uniform3fv( baseColorLoc, vec3( 1.0, .2, 0.2 ) );
+        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+
+        gl.drawArrays( gl.TRIANGLE_FAN, 0, 4 );
+    }
 
     gl.enableVertexAttribArray( vPosition );
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
@@ -146,11 +190,11 @@ function render() {
     
     
     theta = 45.0; // in degree
-    var scaling_l = .1;
-    var scaling_s = 0.025;
-    var rm = rotateZ(theta);
-    var sm = scalem(scaling_l, scaling_l, scaling_l);
-    var tm = translate(tFrogx, tFrogy, 0.0);
+    scaling_l = .1;
+    scaling_s = 0.025;
+    rm = rotateZ(theta);
+    sm = scalem(scaling_l, scaling_l, scaling_l);
+    tm = translate(tFrogx, tFrogy, 0.0);
 
     ctm = mat4();
     ctm = mult(rm, ctm);
@@ -163,6 +207,7 @@ function render() {
     gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
 
     gl.drawArrays( gl.TRIANGLE_STRIP, 0, 4 );
+
 
     window.requestAnimFrame(render);
 }
