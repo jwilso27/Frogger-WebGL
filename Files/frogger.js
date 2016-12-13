@@ -108,18 +108,10 @@ ctm = mult(tm, ctm);
     
     // orthogonal projection
     
-    gl.uniform3fv( baseColorLoc, vec3( 1.0, 0.0, 0.0 ) );
+    gl.uniform3fv( baseColorLoc, vec3( 0.2, 1.0, 0.2 ) );
     gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
 
     gl.drawArrays( gl.TRIANGLE_STRIP, 0, 4 );
-    
-    // orthogonal projection
-    
 
-    gl.uniform3fv( baseColorLoc, vec3( 0.0, 0.0, 0.0 ) );
-
-    // draw the 2nd square as the origin for reference
-    gl.drawArrays( gl.TRIANGLE_STRIP, 0, 4 );
-    
     window.requestAnimFrame(render);
 }
