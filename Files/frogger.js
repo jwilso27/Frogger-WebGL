@@ -14,16 +14,16 @@ var tLogy = [ 0.0 , 0.0, .15, .15];
 var tCarx = [0, .4, -.8, .9];
 var tCary = -.3;
 var recVert = [
-        vec2(  0,  .1 ),
-        vec2(  .4,  .1 ),
-        vec2(.4, 0),
+        vec2( 0,  .05 ),
+        vec2( .2,  .05 ),
+        vec2( .2, 0),
         vec2( 0,  0 ),
     ];
 var carVert = [
-        vec2(  0,  .2 ),
-        vec2(  .3,  .2 ),
-        vec2(.3, 0),
+        vec2( .2, 0),
         vec2( 0,  0 ),
+        vec2( 0,  .2 ),
+        vec2( .2,  .2 ),
     ];
 var bufferId;
 var logBuff;
@@ -91,28 +91,28 @@ function checkKey(e) {
 
     if (e.keyCode == '38') {
         // up arrow
-        if (tFrogy < .3) {
-            tFrogy = tFrogy + .15;
+        if (tFrogy < .4) {
+            tFrogy = tFrogy + .1;
         }
     }
     else if (e.keyCode == '40') {
         // down arrow
-        if (tFrogy > -.3) {
-            tFrogy = tFrogy - .15;
+        if (tFrogy > -.4) {
+            tFrogy = tFrogy - .1;
         }
         
     }
     else if (e.keyCode == '37') {
        // left arrow
-       if (tFrogx > -.7) {
-            tFrogx = tFrogx - .15;
+       if (tFrogx > -.8) {
+            tFrogx = tFrogx - .1;
        }
        
     }
     else if (e.keyCode == '39') {
        // right arrow
-       if (tFrogx < .7) {
-            tFrogx = tFrogx + .15;
+       if (tFrogx < .8) {
+            tFrogx = tFrogx + .1;
        }
        
     }
@@ -165,8 +165,8 @@ function render() {
             tCarx[i] = tCarx[i] - 2.5;
         }
         theta = 0.0; // in degree
-        scaling_l = .5;
-        scaling_s = 0.025;
+        scaling_l = .25;
+        scaling_s = 0.0125;
         rm = rotateZ(theta);
         sm = scalem(scaling_l, scaling_l, scaling_l);
         tm = translate(tCarx[i], tCary, 0.0);
@@ -190,8 +190,8 @@ function render() {
     
     
     theta = 45.0; // in degree
-    scaling_l = .1;
-    scaling_s = 0.025;
+    scaling_l = .05;
+    scaling_s = 0.0125;
     rm = rotateZ(theta);
     sm = scalem(scaling_l, scaling_l, scaling_l);
     tm = translate(tFrogx, tFrogy, 0.0);
