@@ -9,8 +9,8 @@ var ctmLoc;
 var ctm;
 var tFrogx = 0.0;
 var tFrogy = -0.4;
-var tLogx = 0.0;
-var tLogy = 0.0;
+var tLogx = [ 0.0, -0.8, .6, -.6 ];
+var tLogy = [ 0.0 , 0.0, -.15, -.15];
 var recVert = [
         vec2(  0,  .1 ),
         vec2(  .4,  .1 ),
@@ -116,23 +116,28 @@ function render() {
 
 
     //draw logs
-
-    tLogx = tLogx + .01;
-    if(tLogx > 1) {
-        tLogx = tLogx - 2;
+    for(var i = 0; i < 4; i++) {
+        tLogx[i] = tLogx[i] + .01;
+        if(tLogx[i] > 1) {
+            tLogx[i] = tLogx[i] - 3;
+         }  
     }
-    tm = translate(tLogx, tLogy, 0.0);
-    rm = rotateZ(0);
-    scaling_l = 1.2;
-    sm = scalem(scaling_l, scaling_l, scaling_l);
-    ctm = mat4();
-    ctm = mult(rm, ctm);
-    ctm = mult(sm, ctm);
-    ctm = mult(tm, ctm);
 
-    gl.uniform3fv( baseColorLoc, vec3( .4, .18, 0.0 ) );
-    gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
-    gl.drawArrays( gl.TRIANGLE_FAN, 0, 4);
+    for(var i=0; i < 4; i++) {
+        tm = translate(tLogx[i], tLogy[i], 0.0);
+        rm = rotateZ(0);
+        scaling_l = 1.2;
+        sm = scalem(scaling_l, scaling_l, scaling_l);
+        ctm = mat4();
+        ctm = mult(rm, ctm);
+        ctm = mult(sm, ctm);
+        ctm = mult(tm, ctm);
+
+        gl.uniform3fv( baseColorLoc, vec3( .4, .18, 0.0 ) );
+        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+        gl.drawArrays( gl.TRIANGLE_FAN, 0, 4); 
+    }
+
 
 
     gl.enableVertexAttribArray( vPosition );
