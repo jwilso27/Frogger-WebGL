@@ -32,6 +32,7 @@ var carBuff;
 var vLogPos;
 var vCarPos;
 var vPosition;
+var lives;
 
 window.onload = function init()
 {
@@ -83,7 +84,7 @@ window.onload = function init()
 
     document.onkeydown = checkKey;
 
-    initBoard();
+    lives = 5;
 
     render();
 };
@@ -122,16 +123,21 @@ function checkKey(e) {
 
 }
 
+function checkMovement() {
+    var x = Math.trunc((tFrogx)*10) + 9;
+    var y = Math.trunc((tFrogy)*10) + 4;
+    console.log(y);
+    if(board[y][x] == 0) lives = lives - 1;
+}
+
 function initBoard() {
     for( var i=0; i<9; i++ ) {
         board[i] = [];
         switch(i) {
             case 0:
-            case 2:
             case 3:
-            case 4:
-            case 5:
-            case 6:
+            case 1:
+            case 2:
                 for( var j=0; j<18; j++ ) board[i][j] = 1;
                     break;
             case 8:
@@ -148,6 +154,8 @@ function initBoard() {
 
 function render() {
     
+    initBoard();
+
     gl.clear( gl.COLOR_BUFFER_BIT );
     
     var tm, sm, rm, scaling_l, scaling_s;
@@ -165,7 +173,7 @@ function render() {
         tLogx[i] = tLogx[i] + .01;
         if(tLogx[i] > 1) {
             tLogx[i] = tLogx[i] - 3;
-         }  
+        }  
     }
 
     for(var i=0; i < 6; i++) {
@@ -197,6 +205,7 @@ function render() {
         }
         if(((tCarx[i] + 1) * 10) < 19)
             board[1][((tCarx[i] + 1) * 10).toFixed(0)] = 0;
+        //console.log(board[1]);
         theta = 0.0; // in degree
         scaling_l = .4;
         scaling_s = 0.0125;
@@ -247,5 +256,7 @@ function render() {
         alert("You won!");
         tFrogy = tFrogy + .01;
     }
-    window.requestAnimFrame(render);
+    checkMovement();
+    console.log(lives);
+    if(lives > 0) window.requestAnimFrame(render);
 }
