@@ -344,7 +344,7 @@ if(currLevel==1) {
     //console.log(tFrogy)
     if(tFrogy == .4) {
         alert("You won!");
-        tFrogy = tFrogy + .01;
+        tFrogy = -.4;
         currLevel = 1;
     }
 }
