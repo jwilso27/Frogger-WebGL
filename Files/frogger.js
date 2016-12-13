@@ -83,6 +83,8 @@ window.onload = function init()
 
     document.onkeydown = checkKey;
 
+    initBoard();
+
     render();
 };
 
@@ -124,17 +126,21 @@ function initBoard() {
     for( var i=0; i<9; i++ ) {
         board[i] = [];
         switch(i) {
-
             case 0:
+            case 2:
             case 3:
-                for( var j; j<18; j++ ) board[i][j] = 1;
-                break;
+            case 4:
+            case 5:
+            case 6:
+                for( var j=0; j<18; j++ ) board[i][j] = 1;
+                    break;
             case 8:
-                for( var j; j<18; j+=2 ) board[i][j] = 2;
+                for( var j=0; j<18; j++ ) 
+                    if( j%2 ) board[i][j] = 2;
+                    else board[i][j] = 0;
                 break;
             default:
-                for( var j; j<18; j++ ) board[i][j] = 0;
-                break;
+                for( var j=0; j<18; j++ ) board[i][j] = 0;
         }
     }
 
@@ -154,6 +160,7 @@ function render() {
     for(var i = 0; i < 6; i++) {
         if(tLogy[i] == .07) {
             tLogx[i] = tLogx[i] + .01;
+            board[5][((tLogx[i] + 1) * 10).toFixed(0)] = 1;
         }
         tLogx[i] = tLogx[i] + .01;
         if(tLogx[i] > 1) {
@@ -188,6 +195,8 @@ function render() {
         if (tCarx[i] > 1) {
             tCarx[i] = tCarx[i] - 2.5;
         }
+        if(((tCarx[i] + 1) * 10) < 19)
+            board[1][((tCarx[i] + 1) * 10).toFixed(0)] = 0;
         theta = 0.0; // in degree
         scaling_l = .4;
         scaling_s = 0.0125;
@@ -232,6 +241,6 @@ function render() {
 
     gl.drawArrays( gl.TRIANGLE_STRIP, 0, 4 );
 
-
-    window.requestAnimFrame(render);
+    for(var i=0; i<9; i++) console.log(board[i])
+    //window.requestAnimFrame(render);
 }
