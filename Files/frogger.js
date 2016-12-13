@@ -13,6 +13,7 @@ var tLogx = [ 0.0, -0.8, .6, -.6 ];
 var tLogy = [ 0.0 , 0.0, .15, .15];
 var tCarx = [0, .4, -.8, .9];
 var tCary = -.3;
+var board = [];
 var recVert = [
         vec2( 0,  .05 ),
         vec2( .2,  .05 ),
@@ -115,6 +116,25 @@ function checkKey(e) {
             tFrogx = tFrogx + .1;
        }
        
+    }
+
+}
+
+function initBoard() {
+    for( var i=0; i<9; i++ ) {
+        board[i] = [];
+        switch(i) {
+
+            case 0:
+            case 3:
+                for( var j; j<18; j++ ) board[i][j] = 1;
+                break;
+            case 8:
+                for( var j; j<18; j+=2 ) board[i][j] = 2;
+                break;
+            default:
+                for( var j; j<18; j++ ) board[i][j] = 0;
+                break;
     }
 
 }
