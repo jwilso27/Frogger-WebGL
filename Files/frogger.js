@@ -110,8 +110,9 @@ function render() {
     gl.clear( gl.COLOR_BUFFER_BIT );
     
     gl.enableVertexAttribArray( vPosition );
-    gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
+    gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
+    
     
     theta = 45.0; // in degree
     var scaling_l = 0.1;
