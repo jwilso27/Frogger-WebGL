@@ -11,9 +11,9 @@ var tFrogx = 0.0;
 var tFrogy = -0.4;
 var tLogx = [ 0.0, -0.8, .3, -.3, .6, -.6 ];
 var tLogy = [ -0.02 , -0.02, .07, .07, .15, .15];
-var tCarx = [0, .4, -.8, .9];
+var tCarx = [0, .4, -.8, .9, .1, .6, -.4, -.9];
 var board = [];
-var tCary = -.35;
+var tCary = [-.35, -.35, -.35, -.35, -.25, -.25, -.25, -.25];
 var recVert = [
         vec2( 0,  .05 ),
         vec2( .2,  .05 ),
@@ -183,7 +183,7 @@ function render() {
     gl.bindBuffer(gl.ARRAY_BUFFER, carBuff);
     gl.vertexAttribPointer( vCarPos, 2, gl.FLOAT, false, 0, 0 );
     
-    for(var i=0; i < 4; i++) {
+    for(var i=0; i < 8; i++) {
         tCarx[i] = tCarx[i] + .015;
         if (tCarx[i] > 1) {
             tCarx[i] = tCarx[i] - 2.5;
@@ -193,7 +193,7 @@ function render() {
         scaling_s = 0.0125;
         rm = rotateZ(theta);
         sm = scalem(scaling_l, scaling_l, scaling_l);
-        tm = translate(tCarx[i], tCary, 0.0);
+        tm = translate(tCarx[i], tCary[i], 0.0);
 
         ctm = mat4();
         ctm = mult(rm, ctm);
