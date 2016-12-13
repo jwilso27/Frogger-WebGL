@@ -12,9 +12,9 @@ var tFrogy = -.9;
 var tLogx = 0.0;
 var tLogy = 0.0;
 var recVert = [
-        vec2(  0,  .05 ),
-        vec2(  .25,  .05 ),
-        vec2(.25, 0),
+        vec2(  0,  .1 ),
+        vec2(  .4,  .1 ),
+        vec2(.4, 0),
         vec2( 0,  0 ),
 
 ];
@@ -140,14 +140,22 @@ function render() {
 
     //draw logs
 
-    var tm = translate(tLogx, tLogy, 0.0);
+    tLogx = tLogx + .01;
+    if(tLogx > 1) {
+        tLogx = tLogx - 2;
+    }
+    tm = translate(tLogx, tLogy, 0.0);
+    rm = rotateZ(0);
+    scaling_l = 1.2;
+    sm = scalem(scaling_l, scaling_l, scaling_l);
     ctm = mat4();
     ctm = mult(rm, ctm);
     ctm = mult(sm, ctm);
     ctm = mult(tm, ctm);
 
-    gl.uniform3fv( baseColorLoc, vec3( 0.2, 1.0, 0.2 ) );
+    gl.uniform3fv( baseColorLoc, vec3( .4, .18, 0.0 ) );
     gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
-    gl.drawArrays( gl.TRIANGLE_FAN, 0, recVert.length);
+    gl.drawArrays( gl.TRIANGLE_FAN, 0, 4);
+
     window.requestAnimFrame(render);
 }
