@@ -90,20 +90,20 @@ function checkKey(e) {
 
     e = e || window.event;
 
-    if (e.keyCode == '38') {
+    if (e.keyCode == 38) {
         // up arrow
         if (tFrogy < .4) {
             tFrogy = tFrogy + .1;
         }
     }
-    else if (e.keyCode == '40') {
+    else if (e.keyCode == 40) {
         // down arrow
         if (tFrogy > -.4) {
             tFrogy = tFrogy - .1;
         }
         
     }
-    else if (e.keyCode == '37') {
+    else if (e.keyCode == 37) {
        // left arrow
        if (tFrogx > -.8) {
             tFrogx = tFrogx - .1;
@@ -232,6 +232,10 @@ function render() {
 
     gl.drawArrays( gl.TRIANGLE_STRIP, 0, 4 );
 
-
+    console.log(tFrogy)
+    if(tFrogy == .4) {
+        alert("You won!");
+        tFrogy = tFrogy + .01;
+    }
     window.requestAnimFrame(render);
 }
