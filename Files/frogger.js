@@ -16,12 +16,12 @@ var recVert = [
         vec2(  .4,  .1 ),
         vec2(.4, 0),
         vec2( 0,  0 ),
-
-];
+    ];
 var bufferId;
 var logBuff;
 var vLogPos;
 var vPosition;
+
 window.onload = function init()
 {
     canvas = document.getElementById( "gl-canvas" );
@@ -68,9 +68,9 @@ window.onload = function init()
 
     document.onkeydown = checkKey;
 
-
     render();
 };
+
 function checkKey(e) {
 
     e = e || window.event;
