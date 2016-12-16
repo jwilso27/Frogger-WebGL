@@ -63,8 +63,10 @@ window.onload = function init()
         vec2( .5, .5 )
     ];
 
-    for( var i=0; i <= 360; i+=10 )
+    padVert.push( vec2( 0, 0 ) );
+    for( var i=0; i <= 360; i+=5 )
         padVert.push( vec2( Math.cos(i*Math.PI/180), Math.sin(i*Math.PI/180) ) );
+    console.log(padVert);
 
     // Load the data into the GPU
     bufferId = gl.createBuffer();
@@ -364,7 +366,6 @@ function drawLogs() {
 function drawPads() {
     var tm, sm, rm, scale_x, scale_y, scale_z;
 
-    handleLoadedTexture(textures[3]);
     for( var i=0; i < board[7].length; i++ ){
         if( board[7][i] == 2 ) {
             gl.enableVertexAttribArray( vPadPos );
@@ -372,8 +373,8 @@ function drawPads() {
             gl.vertexAttribPointer(vPadPos, 2, gl.FLOAT, false, 0, 0);
 
             theta = 0.0; // in degree
-            scale_x = .075;
-            scale_y = .075;
+            scale_x = .75;
+            scale_y = .75;
             scale_z = 1;
             rm = rotateZ(theta);
             sm = scalem(scale_x, scale_y, scale_z);
@@ -385,8 +386,8 @@ function drawPads() {
             ctm = mult(tm, ctm);
 
             gl.uniform3fv( baseColorLoc, vec3( 0, 1, 0 ) );
-            gl.uniformMatrix4fv(ctmLoc, false, flatten(padVert));
-            gl.drawArrays( gl.TRIANGLE_FAN, 0, padVert.length); 
+            gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+            gl.drawArrays( gl.TRIANGLE_FAN, 0, 5); 
         } else {
             gl.enableVertexAttribArray( vBGPos );
             gl.bindBuffer(gl.ARRAY_BUFFER, bgBuff);
