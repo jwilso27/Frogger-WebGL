@@ -8,10 +8,15 @@
 attribute vec4 vPosition;
 uniform mat4 ctMatrix;
 uniform mat4 projMatrix;
+
+attribute vec2 a_texCoord;
+
+varying vec2 v_texCoord;
 void
 main()
 {
     gl_Position = projMatrix * ctMatrix * vPosition;
+    v_texCoord = a_texCoord;
 }
 </script>
 
@@ -20,10 +25,15 @@ main()
 precision mediump float;
 uniform vec3 baseColor;
 
+uniform sampler2D u_image;
+
+varying vec2 v_texCoord;
+
 void
 main()
 {
-    gl_FragColor = vec4( baseColor, 1.0 );
+    //gl_FragColor = vec4( baseColor, 1.0 );
+    gl_FragColor = texture2D(u_image, v_texCoord);
 }
 </script>
 

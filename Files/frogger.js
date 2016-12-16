@@ -26,6 +26,7 @@ var lives;
 var currLevel = 1;
 var logSpeed = .001;
 var carSpeed = .001;
+var image;
 
 window.onload = function init()
 {
@@ -50,6 +51,11 @@ window.onload = function init()
         vec2( .5, -.5 ),
         vec2( .5, .5 )
     ];
+      image = new Image();
+      image.src = "./Textures/frog.png";  // MUST BE SAME DOMAIN!!!
+      image.onload = function() {
+        render();
+      }
 
     // Load the data into the GPU
     bufferId = gl.createBuffer();
@@ -66,6 +72,16 @@ window.onload = function init()
     gl.bindBuffer( gl.ARRAY_BUFFER, carBuff );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
     vCarPos = gl.getAttribLocation(program, "vPosition");
+
+
+      var texCoordLocation = gl.getAttribLocation(program, "a_texCoord");
+ 
+  // provide texture coordinates for the rectangle.
+  var texCoordBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(texCoordLocation);
+  gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
 
     // Associate out shader variables with our data buffer
     baseColorLoc = gl.getUniformLocation( program, "baseColor" );
@@ -293,6 +309,19 @@ function render() {
     //     logSpeed = .02;
     //     carSpeed = .025;
     // }
+  
+   // Create a texture.
+  var texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+ 
+  // Set the parameters so we can render any size image.
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+ 
+  // Upload the image into the texture.
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
     drawLogs();
     drawCars();
