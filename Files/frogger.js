@@ -56,6 +56,10 @@ window.onload = function init()
         vec2( .5, .5 )
     ];
 
+    var padVert = [];
+    for( var i=0; i <= 360; i+=10 )
+        padVert.push( vec2( .5*Math.cos(i*Math.PI/180), .5*Math.sin(i*Math.PI/180) ) );
+
     // Load the data into the GPU
     bufferId = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
@@ -74,7 +78,7 @@ window.onload = function init()
 
     padBuff = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, padBuff );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(padVert), gl.STATIC_DRAW );
     vPadPos = gl.getAttribLocation(program, "vPosition");
 
     var texCoordLocation = gl.getAttribLocation(program, "a_texCoord");
@@ -501,16 +505,6 @@ function render() {
     gl.clear( gl.COLOR_BUFFER_BIT );
     // Turn off rendering to alpha
     
-    // if(currLevel==1) {
-    //     logSpeed = .01;
-    //     carSpeed = .015;
-    // } else if(currLevel==2) {
-    //     logSpeed = .02;
-    //     carSpeed = .025;
-    // }
-  
-    // Create a texture.
-
     handleLoadedTexture(textures[3]);
     drawBG();
     drawPads();
