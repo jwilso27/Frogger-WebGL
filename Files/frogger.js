@@ -369,29 +369,7 @@ function drawLogs() {
 function drawPads() {
     var tm, sm, rm, scale_x, scale_y, scale_z;
 
-    for( var i=0; i < board[7].length; i++ ){
-        if( board[7][i] == 2 ) {
-            gl.enableVertexAttribArray( vPadPos );
-            gl.bindBuffer(gl.ARRAY_BUFFER, padBuff);
-            gl.vertexAttribPointer(vPadPos, 2, gl.FLOAT, false, 0, 0);
-
-            theta = 0.0; // in degree
-            scale_x = .75;
-            scale_y = .75;
-            scale_z = 1;
-            rm = rotateZ(theta);
-            sm = scalem(scale_x, scale_y, scale_z);
-            tm = translate( (i-9)/10, .3, 0 );
-
-            ctm = mat4();
-            ctm = mult(rm, ctm);
-            ctm = mult(sm, ctm);
-            ctm = mult(tm, ctm);
-
-            gl.uniform3fv( baseColorLoc, vec3( 0, 1, 0 ) );
-            gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
-            gl.drawArrays( gl.TRIANGLE_FAN, 0, 5); 
-        } else {
+    for( var i=0; i < board[7].length; i++ ) {
             gl.enableVertexAttribArray( vBGPos );
             gl.bindBuffer(gl.ARRAY_BUFFER, bgBuff);
             gl.vertexAttribPointer(vBGPos, 2, gl.FLOAT, false, 0, 0);
@@ -412,7 +390,6 @@ function drawPads() {
             gl.uniform3fv( baseColorLoc, vec3( 0.5, 1, 0.5 ) );
             gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
             gl.drawArrays( gl.TRIANGLE_FAN, 0, 4); 
-        }
     }
     handleLoadedTexture(textures[11]);
     scale_x = .1;
