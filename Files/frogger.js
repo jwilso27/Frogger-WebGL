@@ -111,6 +111,9 @@ window.onload = function init()
     initTexture("./Textures/bush.png");
     initTexture("./Textures/car2.png");
     initTexture("./Textures/car3.png");
+    initTexture("./Textures/blue.png");
+    initTexture("./Textures/yellow.png");
+    initTexture("./Textures/street.png");
     render();
 };
 function initTexture(url) {
@@ -372,6 +375,8 @@ function drawLogs() {
 function drawPads() {
     var tm, sm, rm, scale_x, scale_y, scale_z;
 
+    handleLoadedTexture(textures[3]);
+
     gl.enableVertexAttribArray( vPadPos );
     gl.bindBuffer(gl.ARRAY_BUFFER, padBuff);
     gl.vertexAttribPointer(vPadPos, 2, gl.FLOAT, false, 0, 0);
@@ -413,21 +418,24 @@ function drawPads() {
     }
 
     // draw bush
-    scale_x = 2;
+    scale_x = .1;
     scale_y = .1;
     scale_z = 1;
     rm = rotateZ(theta);
     sm = scalem(scale_x, scale_y, scale_z);
-    tm = translate( 0, .4, 0 );
+    for(var i=0; i<20; i++) {
+        tm = translate( i*.1-1, .4, 0 );
 
-    ctm = mat4();
-    ctm = mult(rm, ctm);
-    ctm = mult(sm, ctm);
-    ctm = mult(tm, ctm);
+        ctm = mat4();
+        ctm = mult(rm, ctm);
+        ctm = mult(sm, ctm);
+        ctm = mult(tm, ctm);
 
-    gl.uniform3fv( baseColorLoc, vec3( 0.5, 1, 0.5 ) );
-    gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
-    gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
+        gl.uniform3fv( baseColorLoc, vec3( 0.5, 1, 0.5 ) );
+        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+        gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
+  
+    }
 }
 
 function drawBG() {
@@ -437,6 +445,7 @@ function drawBG() {
     gl.bindBuffer(gl.ARRAY_BUFFER, padBuff);
     gl.vertexAttribPointer(vPadPos, 2, gl.FLOAT, false, 0, 0);
 
+    handleLoadedTexture(textures[6]);
     // draw water
     scale_x = 2;
     scale_y = .5;
@@ -455,6 +464,7 @@ function drawBG() {
     gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
     
     // draw street
+    handleLoadedTexture(textures[8]);
     scale_x = 2;
     scale_y = .2;
     scale_z = 1;
@@ -472,6 +482,7 @@ function drawBG() {
     gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
     
     // draw street lines
+    handleLoadedTexture(textures[7]);
     scale_x = 2;
     scale_y = .01;
     scale_z = 1;
