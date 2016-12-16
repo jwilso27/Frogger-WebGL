@@ -126,6 +126,7 @@ window.onload = function init()
     initTexture("./Textures/yellow.png");
     initTexture("./Textures/street.png");
     initTexture("./Textures/truck.png");
+    initTexture("./Textures/safezone.png");
     render();
 };
 function initTexture(url) {
@@ -494,6 +495,57 @@ function drawBG() {
         gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
         gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
     }
+    for(var i=0; i<22; i++) {
+        tm = translate( i*.1-1, .5, 0 );
+
+        ctm = mat4();
+        ctm = mult(rm, ctm);
+        ctm = mult(sm, ctm);
+        ctm = mult(tm, ctm);
+
+        gl.uniform3fv( baseColorLoc, vec3( 0.5, 1, 0.5 ) );
+        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+        gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
+    }
+
+    //draw safezone
+    handleLoadedTexture(textures[10]);
+    for(var i=0; i<22; i++) {
+        tm = translate( i*.1-1, -.1, 0 );
+
+        ctm = mat4();
+        ctm = mult(rm, ctm);
+        ctm = mult(sm, ctm);
+        ctm = mult(tm, ctm);
+
+        gl.uniform3fv( baseColorLoc, vec3( 0.5, 1, 0.5 ) );
+        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+        gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
+    }
+    for(var i=0; i<22; i++) {
+        tm = translate( i*.1-1, -.4, 0 );
+
+        ctm = mat4();
+        ctm = mult(rm, ctm);
+        ctm = mult(sm, ctm);
+        ctm = mult(tm, ctm);
+
+        gl.uniform3fv( baseColorLoc, vec3( 0.5, 1, 0.5 ) );
+        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+        gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
+    }
+    for(var i=0; i<22; i++) {
+        tm = translate( i*.1-1, -.5, 0 );
+
+        ctm = mat4();
+        ctm = mult(rm, ctm);
+        ctm = mult(sm, ctm);
+        ctm = mult(tm, ctm);
+
+        gl.uniform3fv( baseColorLoc, vec3( 0.5, 1, 0.5 ) );
+        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+        gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
+    }
 }
 
 function print() {
@@ -510,6 +562,7 @@ function render() {
     
     handleLoadedTexture(textures[3]);
     drawBG();
+    handleLoadedTexture(textures[3]);
     drawPads();
     handleLoadedTexture(textures[2]);
     drawLogs();
