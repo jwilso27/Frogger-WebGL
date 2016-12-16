@@ -16,7 +16,6 @@ var tCarx = [0, .4, -.8, .9, .1, .6, -.4, -.9];
 var tCary = [-.3, -.3, -.3, -.3, -.2, -.2, -.2, -.2];
 var tCard = [ 0.0, 0.01 ];
 var board = [];
-var padVert = [];
 var bufferId;
 
 var logBuff;
@@ -64,11 +63,6 @@ window.onload = function init()
         vec2( .5, .5 )
     ];
 
-    padVert.push( vec2( 0, 0 ) );
-    for( var i=0; i <= 360; i+=5 )
-        padVert.push( vec2( Math.cos(i*Math.PI/180), Math.sin(i*Math.PI/180) ) );
-    console.log(padVert);
-
     // Load the data into the GPU
     bufferId = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
@@ -92,7 +86,7 @@ window.onload = function init()
 
     padBuff = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, padBuff );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(padVert), gl.STATIC_DRAW );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
     vPadPos = gl.getAttribLocation(program, "vPosition");
 
     var texCoordLocation = gl.getAttribLocation(program, "a_texCoord");
@@ -297,10 +291,6 @@ function drawCars() {
         }
         var x = Math.trunc((tCarx[i])*10) + 9;
         var y = Math.trunc((tCary[i])*10) + 4;
-        //console.log(x);
-        //console.log(y);
-        //for( var j = x-1; j <= x; j++ )
-            //if( (y >= 0) && (y < 9) && (j >= 0) && (j < 19) )
         if( (y >= 0) && (y < 9) && (x >= 0) && (x < 19) )
             board[y][x] = 0;
 
@@ -341,8 +331,6 @@ function drawLogs() {
         }  
         var x = Math.trunc((tLogx[i])*10) + 9;
         var y = Math.trunc((tLogy[i])*10) + 4;
-        //console.log(x);
-        //console.log(y);
         for( var j = x-2; j <= x+2; j++ )
             if( (y >= 0) && (y < 9) && (j >= 0) && (j < 19) )
                 board[y][j] = 1;
@@ -369,35 +357,13 @@ function drawLogs() {
 function drawPads() {
     var tm, sm, rm, scale_x, scale_y, scale_z;
 
-    for( var i=0; i < board[7].length; i++ ) {
-            gl.enableVertexAttribArray( vBGPos );
-            gl.bindBuffer(gl.ARRAY_BUFFER, bgBuff);
-            gl.vertexAttribPointer(vBGPos, 2, gl.FLOAT, false, 0, 0);
-
-            theta = 0.0; // in degree
-            scale_x = .1;
-            scale_y = .1;
-            scale_z = 1;
-            rm = rotateZ(theta);
-            sm = scalem(scale_x, scale_y, scale_z);
-            tm = translate( (i-9)/10, .3, 0 );
-
-            ctm = mat4();
-            ctm = mult(rm, ctm);
-            ctm = mult(sm, ctm);
-            ctm = mult(tm, ctm);
-
-            gl.uniform3fv( baseColorLoc, vec3( 0.5, 1, 0.5 ) );
-            gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
-            gl.drawArrays( gl.TRIANGLE_FAN, 0, 4); 
-    }
     handleLoadedTexture(textures[11]);
-    scale_x = .1;
-    scale_y = .1;
+    scale_x = .075;
+    scale_y = .075;
     scale_z = 1;
     rm = rotateZ(theta);
     sm = scalem(scale_x, scale_y, scale_z);
-    for(var i=0; i<11; i++) {
+    for(var i=1; i<10; i++) {
         tm = translate( i*.2-1, .3, 0 );
 
         ctm = mat4();
@@ -500,6 +466,29 @@ function drawBG() {
         gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
         gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
     }
+    for( var i=0; i < board[7].length; i+=2 ) {
+        gl.enableVertexAttribArray( vBGPos );
+        gl.bindBuffer(gl.ARRAY_BUFFER, bgBuff);
+        gl.vertexAttribPointer(vBGPos, 2, gl.FLOAT, false, 0, 0);
+
+        theta = 0.0; // in degree
+        scale_x = .1;
+        scale_y = .1;
+        scale_z = 1;
+        rm = rotateZ(theta);
+        sm = scalem(scale_x, scale_y, scale_z);
+        tm = translate( (i-9)/10, .3, 0 );
+
+        ctm = mat4();
+        ctm = mult(rm, ctm);
+        ctm = mult(sm, ctm);
+        ctm = mult(tm, ctm);
+
+        gl.uniform3fv( baseColorLoc, vec3( 0.5, 1, 0.5 ) );
+        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+        gl.drawArrays( gl.TRIANGLE_FAN, 0, 4); 
+    }
+
 
     //draw safezone
     handleLoadedTexture(textures[10]);
@@ -564,4 +553,5 @@ function render() {
     //for(var i=0; i<9; i++) console.log(board[i])
     //console.log(lives);
     if(lives > 0) window.requestAnimFrame(render);
+    else alert("Game Over (Refresh the page to play again!)");
 }
