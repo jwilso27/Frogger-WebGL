@@ -28,7 +28,7 @@ var lives;
 var currLevel = 1;
 var logSpeed = .001;
 var carSpeed = .001;
-var image;
+var images = [];
 
 window.onload = function init()
 {
@@ -59,11 +59,12 @@ window.onload = function init()
         vec2( 1, -1 ),
         vec2( 1, 1 )
     ]
-      image = new Image();
+      var image = new Image();
       image.src = "./Textures/frog.png";  // MUST BE SAME DOMAIN!!!
       image.onload = function() {
         render();
       }
+      images.push(image);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
@@ -232,8 +233,8 @@ function drawFrog() {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     
     // Upload the image into the texture.
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-    
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, images[0]);
+
     // draw frog
     gl.enableVertexAttribArray( vPosition );
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
