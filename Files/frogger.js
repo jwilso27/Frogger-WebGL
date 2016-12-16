@@ -16,6 +16,7 @@ var tCarx = [0, .4, -.8, .9, .1, .6, -.4, -.9];
 var tCary = [-.3, -.3, -.3, -.3, -.2, -.2, -.2, -.2];
 var tCard = [ 0.0, 0.01 ];
 var board = [];
+var padVert = [];
 var bufferId;
 
 var logBuff;
@@ -62,7 +63,6 @@ window.onload = function init()
         vec2( .5, .5 )
     ];
 
-    var padVert = [];
     for( var i=0; i <= 360; i+=10 )
         padVert.push( vec2( Math.cos(i*Math.PI/180), Math.sin(i*Math.PI/180) ) );
 
@@ -363,6 +363,7 @@ function drawLogs() {
 function drawPads() {
     var tm, sm, rm, scale_x, scale_y, scale_z;
 
+    handleLoadedTexture(textures[3]);
     for( var i=0; i < board[7].length; i++ ){
         if( board[7][i] == 2 ) {
             gl.enableVertexAttribArray( vPadPos );
@@ -382,7 +383,9 @@ function drawPads() {
             ctm = mult(sm, ctm);
             ctm = mult(tm, ctm);
 
-            gl.uniform3fv( baseColorLoc, vec3( 0, 1, 0.5 ) );
+            gl.uniform3fv( baseColorLoc, vec3( 0, 1, 0 ) );
+            gl.uniformMatrix4fv(ctmLoc, false, flatten(padVert));
+            gl.drawArrays( gl.TRIANGLE_FAN, 0, padVert.length); 
         } else {
             gl.enableVertexAttribArray( vBGPos );
             gl.bindBuffer(gl.ARRAY_BUFFER, bgBuff);
@@ -402,11 +405,10 @@ function drawPads() {
             ctm = mult(tm, ctm);
 
             gl.uniform3fv( baseColorLoc, vec3( 0.5, 1, 0.5 ) );
+            gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+            gl.drawArrays( gl.TRIANGLE_FAN, 0, 4); 
         }
-        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
-        gl.drawArrays( gl.TRIANGLE_FAN, 0, 4); 
     }
-
 }
 
 function drawBG() {
