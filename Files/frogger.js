@@ -129,6 +129,7 @@ window.onload = function init()
     initTexture("./Textures/street.png");
     initTexture("./Textures/truck.png");
     initTexture("./Textures/safezone.png");
+    initTexture("./Textures/pads.png");
     render();
 };
 function initTexture(url) {
@@ -411,6 +412,23 @@ function drawPads() {
             gl.drawArrays( gl.TRIANGLE_FAN, 0, 4); 
         }
     }
+    handleLoadedTexture(textures[11]);
+    scale_x = .1;
+    scale_y = .1;
+    scale_z = 1;
+    rm = rotateZ(theta);
+    sm = scalem(scale_x, scale_y, scale_z);
+    for(var i=0; i<11; i++) {
+        tm = translate( i*.2-1, .3, 0 );
+
+        ctm = mat4();
+        ctm = mult(rm, ctm);
+        ctm = mult(sm, ctm);
+        ctm = mult(tm, ctm);
+
+        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+        gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
+    }
 }
 
 function drawBG() {
@@ -434,7 +452,6 @@ function drawBG() {
     ctm = mult(sm, ctm);
     ctm = mult(tm, ctm);
 
-    gl.uniform3fv( baseColorLoc, vec3( 0, 0, .5 ) );
     gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
     gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
     
@@ -452,7 +469,6 @@ function drawBG() {
     ctm = mult(sm, ctm);
     ctm = mult(tm, ctm);
 
-    gl.uniform3fv( baseColorLoc, vec3( 0, 0, 0 ) );
     gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
     gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
     
@@ -472,7 +488,6 @@ function drawBG() {
         ctm = mult(sm, ctm);
         ctm = mult(tm, ctm);
 
-        gl.uniform3fv( baseColorLoc, vec3( 1, 1, 0 ) );
         gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
         gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
     }
@@ -492,7 +507,6 @@ function drawBG() {
         ctm = mult(sm, ctm);
         ctm = mult(tm, ctm);
 
-        gl.uniform3fv( baseColorLoc, vec3( 0.5, 1, 0.5 ) );
         gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
         gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
     }
@@ -504,7 +518,6 @@ function drawBG() {
         ctm = mult(sm, ctm);
         ctm = mult(tm, ctm);
 
-        gl.uniform3fv( baseColorLoc, vec3( 0.5, 1, 0.5 ) );
         gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
         gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
     }
@@ -519,7 +532,6 @@ function drawBG() {
         ctm = mult(sm, ctm);
         ctm = mult(tm, ctm);
 
-        gl.uniform3fv( baseColorLoc, vec3( 0.5, 1, 0.5 ) );
         gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
         gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
     }
@@ -531,7 +543,6 @@ function drawBG() {
         ctm = mult(sm, ctm);
         ctm = mult(tm, ctm);
 
-        gl.uniform3fv( baseColorLoc, vec3( 0.5, 1, 0.5 ) );
         gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
         gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
     }
@@ -543,7 +554,6 @@ function drawBG() {
         ctm = mult(sm, ctm);
         ctm = mult(tm, ctm);
 
-        gl.uniform3fv( baseColorLoc, vec3( 0.5, 1, 0.5 ) );
         gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
         gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
     }
