@@ -16,13 +16,8 @@ var tCarx = [0, .4, -.8, .9, .1, .6, -.4, -.9];
 var tCary = [-.3, -.3, -.3, -.3, -.2, -.2, -.2, -.2];
 var tCard = [ 0.0, 0.01 ];
 var board = [];
-var padVert = [];
-var bufferId;
 
-var logBuff;
-var carBuff;
-var padBuff;
-var bgBuff;
+var bufferId;
 
 var vBGPos
 var vLogPos;
@@ -64,36 +59,11 @@ window.onload = function init()
         vec2( .5, .5 )
     ];
 
-    padVert.push( vec2( 0, 0 ) );
-    for( var i=0; i <= 360; i+=5 )
-        padVert.push( vec2( Math.cos(i*Math.PI/180), Math.sin(i*Math.PI/180) ) );
-    console.log(padVert);
-
     // Load the data into the GPU
     bufferId = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
     vPosition = gl.getAttribLocation( program, "vPosition" );
-
-    logBuff = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, logBuff );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
-    vLogPos = gl.getAttribLocation(program, "vPosition");
-
-    carBuff = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, carBuff );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
-    vCarPos = gl.getAttribLocation(program, "vPosition");
-
-    bgBuff = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, bgBuff );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
-    vPadPos = gl.getAttribLocation(program, "vPosition");
-
-    padBuff = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, padBuff );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(padVert), gl.STATIC_DRAW );
-    vPadPos = gl.getAttribLocation(program, "vPosition");
 
     var texCoordLocation = gl.getAttribLocation(program, "a_texCoord");
 
@@ -102,8 +72,7 @@ window.onload = function init()
     // provide texture coordinates for the rectangle.
     var texCoordBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(
-[   0, 1,   0, 0,  1, 0, 1, 1,]), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 1, 0, 0, 1, 0, 1, 1]), gl.STATIC_DRAW);
     gl.enableVertexAttribArray(texCoordLocation);
     gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
 
@@ -131,14 +100,17 @@ window.onload = function init()
     initTexture("./Textures/truck.png");
     initTexture("./Textures/safezone.png");
     initTexture("./Textures/pads.png");
+
     render();
-};
+}
+
 function initTexture(url) {
     var texture = gl.createTexture();
     texture.image = new Image();
     texture.image.src = url;
     textures.push(texture);
 }
+
 function handleLoadedTexture(texture) {
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -151,7 +123,8 @@ function handleLoadedTexture(texture) {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  }
+}
+
 function checkKey(e) {
 
     e = e || window.event;
@@ -234,10 +207,10 @@ function initBoard() {
 
 function drawFrog() {
 
-    var tm, sm, rm, scaling_l, scaling_s;
-
+    var tm, sm, rm, scaling_l;
    
     // draw frog
+    handleLoadedTexture(textures[0]);
     gl.enableVertexAttribArray( vPosition );
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
     gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
@@ -250,7 +223,6 @@ function drawFrog() {
     else checkMovement();
 
     scaling_l = .05;
-    scaling_s = 0.0125;
     rm = rotateZ(frogTheta);
     sm = scalem(scaling_l, scaling_l, scaling_l);
     tm = translate(tFrogx, tFrogy, 0.0);
@@ -259,8 +231,6 @@ function drawFrog() {
     ctm = mult(rm, ctm);
     ctm = mult(sm, ctm);
     ctm = mult(tm, ctm);
-
-    // orthogonal projection
 
     gl.uniform3fv( baseColorLoc, vec3( 0.2, 1.0, 0.2 ) );
     gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
@@ -273,34 +243,23 @@ function drawCars() {
 
     var tm, sm, rm, scale_x, scale_y, scale_z;
     
-    
     //draw cars
-    gl.enableVertexAttribArray( vCarPos );
-    gl.bindBuffer(gl.ARRAY_BUFFER, carBuff);
+    gl.enableVertexAttribArray( vPosition );
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
     gl.vertexAttribPointer( vCarPos, 2, gl.FLOAT, false, 0, 0 );
 
     //console.log("cars");
     for(var i=0; i < 8; i++) {
-        if(i%4==0) {
-            handleLoadedTexture(textures[1]);    
-        } else if(i%4==1) {
-            handleLoadedTexture(textures[4]);
-        } else if(i%4==2) {
-            handleLoadedTexture(textures[5]);
-        } else {
-            handleLoadedTexture(textures[9]);
-        }
+        if(i%4==0) handleLoadedTexture(textures[1]);    
+        else if(i%4==1) handleLoadedTexture(textures[4]);
+        else if(i%4==2) handleLoadedTexture(textures[5]);
+        else handleLoadedTexture(textures[9]);
         
         tCarx[i] = tCarx[i] + tCard[Math.trunc(i/4)] + carSpeed;
-        if (tCarx[i] > 1.5) {
-            tCarx[i] = tCarx[i] - 2.5;
-        }
+        if (tCarx[i] > 1.5) tCarx[i] = tCarx[i] - 2.5;
+
         var x = Math.trunc((tCarx[i])*10) + 9;
         var y = Math.trunc((tCary[i])*10) + 4;
-        //console.log(x);
-        //console.log(y);
-        //for( var j = x-1; j <= x; j++ )
-            //if( (y >= 0) && (y < 9) && (j >= 0) && (j < 19) )
         if( (y >= 0) && (y < 9) && (x >= 0) && (x < 19) )
             board[y][x] = 0;
 
@@ -313,8 +272,6 @@ function drawCars() {
         ctm = mat4();
         ctm = mult(sm, ctm);
         ctm = mult(tm, ctm);
-
-        // orthogonal projection
 
         gl.uniform3fv( baseColorLoc, vec3( 1.0, .2, 0.2 ) );
         gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
@@ -329,21 +286,19 @@ function drawLogs() {
     var tm, sm, rm, scale_x, scale_y, scale_z;
 
     //draw logs
-    gl.enableVertexAttribArray( vLogPos );
-    gl.bindBuffer(gl.ARRAY_BUFFER, logBuff);
+    handleLoadedTexture(textures[2]);
+    gl.enableVertexAttribArray( vPosition );
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
     gl.vertexAttribPointer(vLogPos, 2, gl.FLOAT, false, 0, 0);
     
-    //console.log("logs");
     for(var i = 0; i < 6; i++) {
         tLogx[i] = tLogx[i] + tLogd[Math.trunc(i/2)] + logSpeed;
-        if(tLogx[i] > 1.5) {
-            tLogx[i] = tLogx[i] - 3;
-        }  
+        if(tLogx[i] > 1.5) tLogx[i] = tLogx[i] - 3;
+
         var x = Math.trunc((tLogx[i])*10) + 9;
         var y = Math.trunc((tLogy[i])*10) + 4;
-        //console.log(x);
-        //console.log(y);
-        for( var j = x-2; j <= x+2; j++ )
+        if( (tLogx[i])%1 < .05 ) x = x - 1;
+        for( var j = x-1; j <= x+2; j++ )
             if( (y >= 0) && (y < 9) && (j >= 0) && (j < 19) )
                 board[y][j] = 1;
     }
@@ -369,35 +324,13 @@ function drawLogs() {
 function drawPads() {
     var tm, sm, rm, scale_x, scale_y, scale_z;
 
-    for( var i=0; i < board[7].length; i++ ) {
-            gl.enableVertexAttribArray( vBGPos );
-            gl.bindBuffer(gl.ARRAY_BUFFER, bgBuff);
-            gl.vertexAttribPointer(vBGPos, 2, gl.FLOAT, false, 0, 0);
-
-            theta = 0.0; // in degree
-            scale_x = .1;
-            scale_y = .1;
-            scale_z = 1;
-            rm = rotateZ(theta);
-            sm = scalem(scale_x, scale_y, scale_z);
-            tm = translate( (i-9)/10, .3, 0 );
-
-            ctm = mat4();
-            ctm = mult(rm, ctm);
-            ctm = mult(sm, ctm);
-            ctm = mult(tm, ctm);
-
-            gl.uniform3fv( baseColorLoc, vec3( 0.5, 1, 0.5 ) );
-            gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
-            gl.drawArrays( gl.TRIANGLE_FAN, 0, 4); 
-    }
     handleLoadedTexture(textures[11]);
-    scale_x = .1;
-    scale_y = .1;
+    scale_x = .075;
+    scale_y = .075;
     scale_z = 1;
     rm = rotateZ(theta);
     sm = scalem(scale_x, scale_y, scale_z);
-    for(var i=0; i<11; i++) {
+    for(var i=1; i<10; i++) {
         tm = translate( i*.2-1, .3, 0 );
 
         ctm = mat4();
@@ -413,8 +346,8 @@ function drawPads() {
 function drawBG() {
     var tm, sm, rm, scale_x, scale_y, scale_z;
 
-    gl.enableVertexAttribArray( vBGPos );
-    gl.bindBuffer(gl.ARRAY_BUFFER, bgBuff);
+    gl.enableVertexAttribArray( vPosition );
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
     gl.vertexAttribPointer(vBGPos, 2, gl.FLOAT, false, 0, 0);
 
     // draw water
@@ -489,6 +422,7 @@ function drawBG() {
         gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
         gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
     }
+
     for(var i=0; i<22; i++) {
         tm = translate( i*.1-1, .5, 0 );
 
@@ -500,6 +434,19 @@ function drawBG() {
         gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
         gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
     }
+
+    for( var i=0; i < board[7].length; i+=2 ) {
+        tm = translate( (i-9)/10, .3, 0 );
+
+        ctm = mat4();
+        ctm = mult(rm, ctm);
+        ctm = mult(sm, ctm);
+        ctm = mult(tm, ctm);
+
+        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+        gl.drawArrays( gl.TRIANGLE_FAN, 0, 4); 
+    }
+
 
     //draw safezone
     handleLoadedTexture(textures[10]);
@@ -514,6 +461,7 @@ function drawBG() {
         gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
         gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
     }
+
     for(var i=0; i<22; i++) {
         tm = translate( i*.1-1, -.4, 0 );
 
@@ -525,6 +473,7 @@ function drawBG() {
         gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
         gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
     }
+
     for(var i=0; i<22; i++) {
         tm = translate( i*.1-1, -.5, 0 );
 
@@ -550,18 +499,13 @@ function render() {
     gl.clear( gl.COLOR_BUFFER_BIT );
     // Turn off rendering to alpha
     
-    handleLoadedTexture(textures[3]);
     drawBG();
-    handleLoadedTexture(textures[3]);
     drawPads();
-    handleLoadedTexture(textures[2]);
     drawLogs();
     drawCars();
-    handleLoadedTexture(textures[0]);
     drawFrog();
     print();
 
-    //for(var i=0; i<9; i++) console.log(board[i])
-    //console.log(lives);
     if(lives > 0) window.requestAnimFrame(render);
+    else alert("Game Over (Refresh the page to play again!)");
 }
