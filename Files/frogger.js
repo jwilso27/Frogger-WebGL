@@ -10,9 +10,11 @@ var ctm;
 var tFrogx = 0.0;
 var tFrogy = -0.4;
 var tLogx = [ 0.0, -0.8, .3, -.3, .6, -.6 ];
-var tLogy = [ 0.0 , 0.0, .1, .1, .2, .2];
+var tLogy = [ 0.0, 0.0, .1, .1, .2, .2];
+var tLogd = [ 0.0, 0.001, 0.005 ];
 var tCarx = [0, .4, -.8, .9, .1, .6, -.4, -.9];
 var tCary = [-.3, -.3, -.3, -.3, -.2, -.2, -.2, -.2];
+var tCard = [ 0.0, 0.01 ];
 var board = [];
 var bufferId;
 var logBuff;
@@ -22,7 +24,8 @@ var vCarPos;
 var vPosition;
 var lives;
 var currLevel = 1;
-var logSpeed, carSpeed;
+var logSpeed = .001;
+var carSpeed = .001;
 
 window.onload = function init()
 {
@@ -111,17 +114,26 @@ function checkKey(e) {
 
     }
 
+    checkMovement();
 }
 
 function checkMovement() {
-    var x = Math.trunc((tFrogx)*10) + 9;
-    var y = Math.trunc((tFrogy)*10) + 4;
-    console.log(y);
-    if(board[y][x] == 0) {
-        lives = lives - 1;
-        tFrogx = 0;
-        tFrogy = -0.4;
-    }
+    var x = Math.round((tFrogx)*10) + 9;
+    var y = Math.round((tFrogy)*10) + 4;
+    if((board[y][x] == 0)) death();
+    else if(board[y][x] == 2) levelUp();
+}
+
+function death() {
+    lives = lives - 1;
+    tFrogx = 0;
+    tFrogy = -0.4;
+}
+
+function levelUp() {
+    currLevel++;
+    logSpeed = logSpeed + .005;
+    carSpeed = carSpeed + .005;
 }
 
 function initBoard() {
@@ -132,18 +144,17 @@ function initBoard() {
             case 3:
             case 1:
             case 2:
-                for( var j=0; j<18; j++ ) board[i][j] = 1;
+                for( var j=0; j<19; j++ ) board[i][j] = 1;
                 break;
-            case 8:
-                for( var j=0; j<18; j++ ) 
+            case 7:
+                for( var j=0; j<19; j++ ) 
                     if( j%2 ) board[i][j] = 2;
                     else board[i][j] = 0;
                 break;
             default:
-                for( var j=0; j<18; j++ ) board[i][j] = 0;
+                for( var j=0; j<19; j++ ) board[i][j] = 0;
         }
     }
-
 }
 
 function drawFrog() {
@@ -154,6 +165,13 @@ function drawFrog() {
     gl.enableVertexAttribArray( vPosition );
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
     gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
+
+    // move frog with logs
+    var x = Math.round((tFrogx)*10) + 9;
+    var y = Math.round((tFrogy)*10);
+    if( x > 19 ) death();
+    else if( (y <= 3) && (y >= 0) ) tFrogx = tFrogx + tLogd[y] + logSpeed;
+    else checkMovement();
 
     theta = 0.0; // in degree
     scaling_l = .05;
@@ -185,15 +203,22 @@ function drawCars() {
     gl.bindBuffer(gl.ARRAY_BUFFER, carBuff);
     gl.vertexAttribPointer( vCarPos, 2, gl.FLOAT, false, 0, 0 );
 
+    //console.log("cars");
     for(var i=0; i < 8; i++) {
-        tCarx[i] = tCarx[i] + carSpeed;
-        if (tCarx[i] > 1) {
+        tCarx[i] = tCarx[i] + tCard[Math.trunc(i/4)] + carSpeed;
+        if (tCarx[i] > 1.5) {
             tCarx[i] = tCarx[i] - 2.5;
         }
-        if(((tCarx[i] + 1) * 10) < 19)
-            board[1][((tCarx[i] + 1) * 10).toFixed(0)] = 0;
+        var x = Math.trunc((tCarx[i])*10) + 9;
+        var y = Math.trunc((tCary[i])*10) + 4;
+        //console.log(x);
+        //console.log(y);
+        //for( var j = x-1; j <= x; j++ )
+            //if( (y >= 0) && (y < 9) && (j >= 0) && (j < 19) )
+        if( (y >= 0) && (y < 9) && (x >= 0) && (x < 19) )
+            board[y][x] = 0;
 
-        scale_x = .2;
+        scale_x = .15;
         scale_y = .075;
         scale_z = .1;
         sm = scalem(scale_x, scale_y, scale_z);
@@ -222,19 +247,23 @@ function drawLogs() {
     gl.bindBuffer(gl.ARRAY_BUFFER, logBuff);
     gl.vertexAttribPointer(vLogPos, 2, gl.FLOAT, false, 0, 0);
     
+    //console.log("logs");
     for(var i = 0; i < 6; i++) {
-        if(tLogy[i] == .07) {
-            tLogx[i] = tLogx[i] + .01;
-            board[5][((tLogx[i] + 1) * 10).toFixed(0)] = 1;
-        }
-        tLogx[i] = tLogx[i] + logSpeed;
-        if(tLogx[i] > 1) {
+        tLogx[i] = tLogx[i] + tLogd[Math.trunc(i/2)] + logSpeed;
+        if(tLogx[i] > 1.5) {
             tLogx[i] = tLogx[i] - 3;
         }  
+        var x = Math.trunc((tLogx[i])*10) + 9;
+        var y = Math.trunc((tLogy[i])*10) + 4;
+        //console.log(x);
+        //console.log(y);
+        for( var j = x-2; j <= x+2; j++ )
+            if( (y >= 0) && (y < 9) && (j >= 0) && (j < 19) )
+                board[y][j] = 1;
     }
 
     for(var i=0; i < 6; i++) {
-        scale_x = .3;
+        scale_x = .4;
         scale_y = .075;
         scale_z = .1;
         sm = scalem(scale_x, scale_y, scale_z);
@@ -257,17 +286,17 @@ function render() {
 
     gl.clear( gl.COLOR_BUFFER_BIT );
 
-    if(currLevel==1) {
-        logSpeed = .01;
-        carSpeed = .015;
-    } else if(currLevel==2) {
-        logSpeed = .02;
-        carSpeed = .025;
-    }
+    // if(currLevel==1) {
+    //     logSpeed = .01;
+    //     carSpeed = .015;
+    // } else if(currLevel==2) {
+    //     logSpeed = .02;
+    //     carSpeed = .025;
+    // }
 
-    drawFrog();
     drawLogs();
     drawCars();
+    drawFrog();
 
     //for(var i=0; i<9; i++) console.log(board[i])
     //console.log(tFrogy)
@@ -277,7 +306,6 @@ function render() {
         currLevel = 2;
     }   
 
-    checkMovement();
-    console.log(lives);
+    //console.log(lives);
     if(lives > 0) window.requestAnimFrame(render);
 }
