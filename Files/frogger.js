@@ -114,6 +114,7 @@ window.onload = function init()
     initTexture("./Textures/blue.png");
     initTexture("./Textures/yellow.png");
     initTexture("./Textures/street.png");
+    initTexture("./Textures/truck.png");
     render();
 };
 function initTexture(url) {
@@ -290,12 +291,14 @@ function drawCars() {
 
     //console.log("cars");
     for(var i=0; i < 8; i++) {
-        if(i%3==0) {
+        if(i%4==0) {
             handleLoadedTexture(textures[1]);    
-        } else if(i%3==1) {
+        } else if(i%4==1) {
             handleLoadedTexture(textures[4]);
-        } else {
+        } else if(i%4==2) {
             handleLoadedTexture(textures[5]);
+        } else {
+            handleLoadedTexture(textures[9]);
         }
         
         tCarx[i] = tCarx[i] + tCard[Math.trunc(i/4)] + carSpeed;
