@@ -19,8 +19,10 @@ var board = [];
 var bufferId;
 var logBuff;
 var carBuff;
+var padBuff;
 var vLogPos;
 var vCarPos;
+var vPadPos;
 var vPosition;
 var lives;
 var currLevel = 1;
@@ -66,6 +68,11 @@ window.onload = function init()
     gl.bindBuffer( gl.ARRAY_BUFFER, carBuff );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
     vCarPos = gl.getAttribLocation(program, "vPosition");
+
+    padBuff = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, padBuff );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
+    vPadPos = gl.getAttribLocation(program, "vPosition");
 
     // Associate out shader variables with our data buffer
     baseColorLoc = gl.getUniformLocation( program, "baseColor" );
@@ -125,15 +132,44 @@ function checkMovement() {
 }
 
 function death() {
+    //var tm, sm, rm, scaling_l, scaling_s;
+
+    //// draw frog
+    //gl.enableVertexAttribArray( vPosition );
+    //gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
+    //gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
+
+    //theta = 0.0; // in degree
+    //scaling_l = .05;
+    //scaling_s = 0.0125;
+    //rm = rotateZ(theta);
+    //sm = scalem(scaling_l, scaling_l, scaling_l);
+    //tm = translate(tFrogx, tFrogy, 0.0);
+
+    //ctm = mat4();
+    //ctm = mult(rm, ctm);
+    //ctm = mult(sm, ctm);
+    //ctm = mult(tm, ctm);
+
+    //// orthogonal projection
+
+    //gl.uniform3fv( baseColorLoc, vec3( 1, 0, 0 ) );
+    //gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+
+    //gl.drawArrays( gl.TRIANGLE_FAN, 0, 4 );
+
     lives = lives - 1;
     tFrogx = 0;
     tFrogy = -0.4;
+
 }
 
 function levelUp() {
     currLevel++;
     logSpeed = logSpeed + .005;
     carSpeed = carSpeed + .005;
+    tFrogx = 0;
+    tFrogy = -0.4;
 }
 
 function initBoard() {
@@ -273,11 +309,140 @@ function drawLogs() {
         ctm = mult(sm, ctm);
         ctm = mult(tm, ctm);
 
-        gl.uniform3fv( baseColorLoc, vec3( .4, .18, 0.0 ) );
+        gl.uniform3fv( baseColorLoc, vec3( .8, .5, 0.0 ) );
         gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
         gl.drawArrays( gl.TRIANGLE_FAN, 0, 4); 
     }
 
+}
+
+function drawPads() {
+    var tm, sm, rm, scale_x, scale_y, scale_z;
+
+    gl.enableVertexAttribArray( vPadPos );
+    gl.bindBuffer(gl.ARRAY_BUFFER, padBuff);
+    gl.vertexAttribPointer(vPadPos, 2, gl.FLOAT, false, 0, 0);
+
+    for( var i=0; i < board[7].length; i++ ){
+        if( board[7][i] == 2 ) {
+            theta = 0.0; // in degree
+            scale_x = .075;
+            scale_y = .075;
+            scale_z = 1;
+            rm = rotateZ(theta);
+            sm = scalem(scale_x, scale_y, scale_z);
+            tm = translate( (i-9)/10, .3, 0 );
+
+            ctm = mat4();
+            ctm = mult(rm, ctm);
+            ctm = mult(sm, ctm);
+            ctm = mult(tm, ctm);
+
+            gl.uniform3fv( baseColorLoc, vec3( 0, 1, 0.5 ) );
+        } else {
+            theta = 0.0; // in degree
+            scale_x = .1;
+            scale_y = .1;
+            scale_z = 1;
+            rm = rotateZ(theta);
+            sm = scalem(scale_x, scale_y, scale_z);
+            tm = translate( (i-9)/10, .3, 0 );
+
+            ctm = mat4();
+            ctm = mult(rm, ctm);
+            ctm = mult(sm, ctm);
+            ctm = mult(tm, ctm);
+
+            gl.uniform3fv( baseColorLoc, vec3( 0.5, 1, 0.5 ) );
+        }
+        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+        gl.drawArrays( gl.TRIANGLE_FAN, 0, 4); 
+    }
+
+    // draw bush
+    scale_x = 2;
+    scale_y = .1;
+    scale_z = 1;
+    rm = rotateZ(theta);
+    sm = scalem(scale_x, scale_y, scale_z);
+    tm = translate( 0, .4, 0 );
+
+    ctm = mat4();
+    ctm = mult(rm, ctm);
+    ctm = mult(sm, ctm);
+    ctm = mult(tm, ctm);
+
+    gl.uniform3fv( baseColorLoc, vec3( 0.5, 1, 0.5 ) );
+    gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+    gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
+}
+
+function drawBG() {
+    var tm, sm, rm, scale_x, scale_y, scale_z;
+
+    gl.enableVertexAttribArray( vPadPos );
+    gl.bindBuffer(gl.ARRAY_BUFFER, padBuff);
+    gl.vertexAttribPointer(vPadPos, 2, gl.FLOAT, false, 0, 0);
+
+    // draw water
+    scale_x = 2;
+    scale_y = .5;
+    scale_z = 1;
+    rm = rotateZ(theta);
+    sm = scalem(scale_x, scale_y, scale_z);
+    tm = translate( 0, .2, 0 );
+
+    ctm = mat4();
+    ctm = mult(rm, ctm);
+    ctm = mult(sm, ctm);
+    ctm = mult(tm, ctm);
+
+    gl.uniform3fv( baseColorLoc, vec3( 0, 0, .5 ) );
+    gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+    gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
+    
+    // draw street
+    scale_x = 2;
+    scale_y = .2;
+    scale_z = 1;
+    rm = rotateZ(theta);
+    sm = scalem(scale_x, scale_y, scale_z);
+    tm = translate( 0, -.25, 0 );
+
+    ctm = mat4();
+    ctm = mult(rm, ctm);
+    ctm = mult(sm, ctm);
+    ctm = mult(tm, ctm);
+
+    gl.uniform3fv( baseColorLoc, vec3( 0, 0, 0 ) );
+    gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+    gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
+    
+    // draw street lines
+    scale_x = 2;
+    scale_y = .01;
+    scale_z = 1;
+    rm = rotateZ(theta);
+    sm = scalem(scale_x, scale_y, scale_z);
+
+    for( var i=-.35; i<-.1; i+=.1 ){
+        tm = translate( 0, i, 0 );
+
+        ctm = mat4();
+        ctm = mult(rm, ctm);
+        ctm = mult(sm, ctm);
+        ctm = mult(tm, ctm);
+
+        gl.uniform3fv( baseColorLoc, vec3( 1, 1, 0 ) );
+        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+        gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
+    }
+    
+}
+
+function print() {
+    document.getElementById('printLives').innerHTML = 'Lives: ' + lives.toString();
+    document.getElementById('printLevel').innerHTML = 'Level: ' + currLevel.toString();
 }
 
 function render() {
@@ -286,26 +451,14 @@ function render() {
 
     gl.clear( gl.COLOR_BUFFER_BIT );
 
-    // if(currLevel==1) {
-    //     logSpeed = .01;
-    //     carSpeed = .015;
-    // } else if(currLevel==2) {
-    //     logSpeed = .02;
-    //     carSpeed = .025;
-    // }
-
+    drawBG();
+    drawPads();
     drawLogs();
     drawCars();
     drawFrog();
+    print();
 
     //for(var i=0; i<9; i++) console.log(board[i])
-    //console.log(tFrogy)
-    if(tFrogy == .4) {
-        alert("You won!");
-        tFrogy = -.4;
-        currLevel = 2;
-    }   
-
     //console.log(lives);
     if(lives > 0) window.requestAnimFrame(render);
 }
