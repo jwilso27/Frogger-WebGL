@@ -38,6 +38,7 @@ var logSpeed = .001;
 var carSpeed = .001;
 var images = [];
 var textures = [];
+var frogTheta = 0;
 
 window.onload = function init()
 {
@@ -160,26 +161,28 @@ function checkKey(e) {
         if (tFrogy < .4) {
             tFrogy = tFrogy + .1;
         }
+        frogTheta = 0;
     }
     else if (e.keyCode == 40 || e.keyCode == '40') {
         // down arrow
         if (tFrogy > -.4) {
             tFrogy = tFrogy - .1;
         }
-
+        frogTheta = 180;
     }
     else if (e.keyCode == 37 || e.keyCode == '37') {
         // left arrow
         if (tFrogx > -.8) {
             tFrogx = tFrogx - .1;
         }
-
+        frogTheta = 90;
     }
     else if (e.keyCode == 39 || e.keyCode == '39') {
         // right arrow
         if (tFrogx < .8) {
             tFrogx = tFrogx + .1;
         }
+        frogTheta = 270;
 
     }
 
@@ -246,10 +249,9 @@ function drawFrog() {
     else if( (y <= 3) && (y >= 0) ) tFrogx = tFrogx + tLogd[y] + logSpeed;
     else checkMovement();
 
-    theta = 0.0; // in degree
     scaling_l = .05;
     scaling_s = 0.0125;
-    rm = rotateZ(theta);
+    rm = rotateZ(frogTheta);
     sm = scalem(scaling_l, scaling_l, scaling_l);
     tm = translate(tFrogx, tFrogy, 0.0);
 
