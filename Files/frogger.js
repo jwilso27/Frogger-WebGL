@@ -24,11 +24,13 @@ var vLogPos;
 var vCarPos;
 var vPadPos;
 var vPosition;
+var samplerUniform;
 var lives;
 var currLevel = 1;
 var logSpeed = .001;
 var carSpeed = .001;
 var images = [];
+var textures = [];
 
 window.onload = function init()
 {
@@ -53,21 +55,6 @@ window.onload = function init()
         vec2( .5, -.5 ),
         vec2( .5, .5 )
     ];
-    var vertices2 = [
-        vec2(-1, 1 ),
-        vec2(-1, -1 ),
-        vec2( 1, -1 ),
-        vec2( 1, 1 )
-    ]
-      var image = new Image();
-      image.src = "./Textures/frog.png";  // MUST BE SAME DOMAIN!!!
-      image.onload = function() {
-        render();
-      }
-      images.push(image);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-
 
     // Load the data into the GPU
     bufferId = gl.createBuffer();
@@ -91,7 +78,9 @@ window.onload = function init()
     vPadPos = gl.getAttribLocation(program, "vPosition");
 
     var texCoordLocation = gl.getAttribLocation(program, "a_texCoord");
- 
+
+    samplerUniform = gl.getUniformLocation(program, "uSampler");
+
     // provide texture coordinates for the rectangle.
     var texCoordBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
@@ -112,9 +101,32 @@ window.onload = function init()
 
     lives = 5;
 
+    initTexture("./Textures/frog.png");
+    initTexture("./Textures/car1.png");
+    initTexture("./Textures/log_medium.png");
+    initTexture("./Textures/bush.png");
+    initTexture("./Textures/car2.png");
+    initTexture("./Textures/car3.png");
     render();
 };
-
+function initTexture(url) {
+    var texture = gl.createTexture();
+    texture.image = new Image();
+    texture.image.src = url;
+    textures.push(texture);
+}
+function handleLoadedTexture(texture) {
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.uniform1i(samplerUniform, 0);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        // Set the parameters so we can render any size image.
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  }
 function checkKey(e) {
 
     e = e || window.event;
@@ -223,18 +235,7 @@ function drawFrog() {
 
     var tm, sm, rm, scaling_l, scaling_s;
 
-    var texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    
-    // Set the parameters so we can render any size image.
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    
-    // Upload the image into the texture.
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, images[0]);
-
+   
     // draw frog
     gl.enableVertexAttribArray( vPosition );
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
@@ -271,7 +272,8 @@ function drawFrog() {
 function drawCars() {
 
     var tm, sm, rm, scale_x, scale_y, scale_z;
-
+    
+    
     //draw cars
     gl.enableVertexAttribArray( vCarPos );
     gl.bindBuffer(gl.ARRAY_BUFFER, carBuff);
@@ -279,6 +281,14 @@ function drawCars() {
 
     //console.log("cars");
     for(var i=0; i < 8; i++) {
+        if(i%3==0) {
+            handleLoadedTexture(textures[1]);    
+        } else if(i%3==1) {
+            handleLoadedTexture(textures[4]);
+        } else {
+            handleLoadedTexture(textures[5]);
+        }
+        
         tCarx[i] = tCarx[i] + tCard[Math.trunc(i/4)] + carSpeed;
         if (tCarx[i] > 1.5) {
             tCarx[i] = tCarx[i] - 2.5;
@@ -499,10 +509,13 @@ function render() {
   
     // Create a texture.
 
+    handleLoadedTexture(textures[3]);
     drawBG();
     drawPads();
+    handleLoadedTexture(textures[2]);
     drawLogs();
     drawCars();
+    handleLoadedTexture(textures[0]);
     drawFrog();
     print();
 
