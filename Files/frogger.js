@@ -207,6 +207,7 @@ function death() {
 }
 
 function levelUp() {
+    alert("You beat level " + currLevel);
     currLevel++;
     logSpeed = logSpeed + .005;
     carSpeed = carSpeed + .005;
