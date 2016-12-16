@@ -17,14 +17,20 @@ var tCary = [-.3, -.3, -.3, -.3, -.2, -.2, -.2, -.2];
 var tCard = [ 0.0, 0.01 ];
 var board = [];
 var bufferId;
+
 var logBuff;
 var carBuff;
 var padBuff;
+var bgBuff;
+
+var vBGPos
 var vLogPos;
 var vCarPos;
 var vPadPos;
 var vPosition;
+
 var samplerUniform;
+
 var lives;
 var currLevel = 1;
 var logSpeed = .001;
@@ -58,7 +64,7 @@ window.onload = function init()
 
     var padVert = [];
     for( var i=0; i <= 360; i+=10 )
-        padVert.push( vec2( .5*Math.cos(i*Math.PI/180), .5*Math.sin(i*Math.PI/180) ) );
+        padVert.push( vec2( Math.cos(i*Math.PI/180), Math.sin(i*Math.PI/180) ) );
 
     // Load the data into the GPU
     bufferId = gl.createBuffer();
@@ -75,6 +81,11 @@ window.onload = function init()
     gl.bindBuffer( gl.ARRAY_BUFFER, carBuff );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
     vCarPos = gl.getAttribLocation(program, "vPosition");
+
+    bgBuff = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, bgBuff );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
+    vPadPos = gl.getAttribLocation(program, "vPosition");
 
     padBuff = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, padBuff );
@@ -128,7 +139,7 @@ function handleLoadedTexture(texture) {
     gl.uniform1i(samplerUniform, 0);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-        // Set the parameters so we can render any size image.
+    // Set the parameters so we can render any size image.
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
@@ -178,36 +189,9 @@ function checkMovement() {
 }
 
 function death() {
-    //var tm, sm, rm, scaling_l, scaling_s;
-
-    //// draw frog
-    //gl.enableVertexAttribArray( vPosition );
-    //gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
-    //gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
-
-    //theta = 0.0; // in degree
-    //scaling_l = .05;
-    //scaling_s = 0.0125;
-    //rm = rotateZ(theta);
-    //sm = scalem(scaling_l, scaling_l, scaling_l);
-    //tm = translate(tFrogx, tFrogy, 0.0);
-
-    //ctm = mat4();
-    //ctm = mult(rm, ctm);
-    //ctm = mult(sm, ctm);
-    //ctm = mult(tm, ctm);
-
-    //// orthogonal projection
-
-    //gl.uniform3fv( baseColorLoc, vec3( 1, 0, 0 ) );
-    //gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
-
-    //gl.drawArrays( gl.TRIANGLE_FAN, 0, 4 );
-
     lives = lives - 1;
     tFrogx = 0;
     tFrogy = -0.4;
-
 }
 
 function levelUp() {
@@ -375,14 +359,12 @@ function drawLogs() {
 function drawPads() {
     var tm, sm, rm, scale_x, scale_y, scale_z;
 
-    handleLoadedTexture(textures[3]);
-
-    gl.enableVertexAttribArray( vPadPos );
-    gl.bindBuffer(gl.ARRAY_BUFFER, padBuff);
-    gl.vertexAttribPointer(vPadPos, 2, gl.FLOAT, false, 0, 0);
-
     for( var i=0; i < board[7].length; i++ ){
         if( board[7][i] == 2 ) {
+            gl.enableVertexAttribArray( vPadPos );
+            gl.bindBuffer(gl.ARRAY_BUFFER, padBuff);
+            gl.vertexAttribPointer(vPadPos, 2, gl.FLOAT, false, 0, 0);
+
             theta = 0.0; // in degree
             scale_x = .075;
             scale_y = .075;
@@ -398,6 +380,10 @@ function drawPads() {
 
             gl.uniform3fv( baseColorLoc, vec3( 0, 1, 0.5 ) );
         } else {
+            gl.enableVertexAttribArray( vBGPos );
+            gl.bindBuffer(gl.ARRAY_BUFFER, bgBuff);
+            gl.vertexAttribPointer(vBGPos, 2, gl.FLOAT, false, 0, 0);
+
             theta = 0.0; // in degree
             scale_x = .1;
             scale_y = .1;
@@ -417,36 +403,17 @@ function drawPads() {
         gl.drawArrays( gl.TRIANGLE_FAN, 0, 4); 
     }
 
-    // draw bush
-    scale_x = .1;
-    scale_y = .1;
-    scale_z = 1;
-    rm = rotateZ(theta);
-    sm = scalem(scale_x, scale_y, scale_z);
-    for(var i=0; i<20; i++) {
-        tm = translate( i*.1-1, .4, 0 );
-
-        ctm = mat4();
-        ctm = mult(rm, ctm);
-        ctm = mult(sm, ctm);
-        ctm = mult(tm, ctm);
-
-        gl.uniform3fv( baseColorLoc, vec3( 0.5, 1, 0.5 ) );
-        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
-        gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
-  
-    }
 }
 
 function drawBG() {
     var tm, sm, rm, scale_x, scale_y, scale_z;
 
-    gl.enableVertexAttribArray( vPadPos );
-    gl.bindBuffer(gl.ARRAY_BUFFER, padBuff);
-    gl.vertexAttribPointer(vPadPos, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray( vBGPos );
+    gl.bindBuffer(gl.ARRAY_BUFFER, bgBuff);
+    gl.vertexAttribPointer(vBGPos, 2, gl.FLOAT, false, 0, 0);
 
-    handleLoadedTexture(textures[6]);
     // draw water
+    handleLoadedTexture(textures[6]);
     scale_x = 2;
     scale_y = .5;
     scale_z = 1;
@@ -502,6 +469,25 @@ function drawBG() {
         gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
     }
     
+    // draw bush
+    handleLoadedTexture(textures[3]);
+    scale_x = .1;
+    scale_y = .1;
+    scale_z = 1;
+    rm = rotateZ(theta);
+    sm = scalem(scale_x, scale_y, scale_z);
+    for(var i=0; i<22; i++) {
+        tm = translate( i*.1-1, .4, 0 );
+
+        ctm = mat4();
+        ctm = mult(rm, ctm);
+        ctm = mult(sm, ctm);
+        ctm = mult(tm, ctm);
+
+        gl.uniform3fv( baseColorLoc, vec3( 0.5, 1, 0.5 ) );
+        gl.uniformMatrix4fv(ctmLoc, false, flatten(ctm));
+        gl.drawArrays(gl.TRIANGLE_FAN, 0, 4); 
+    }
 }
 
 function print() {
