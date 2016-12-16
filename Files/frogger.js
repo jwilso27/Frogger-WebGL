@@ -120,6 +120,7 @@ function handleLoadedTexture(texture) {
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.uniform1i(samplerUniform, 0);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         // Set the parameters so we can render any size image.
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -498,7 +499,8 @@ function render() {
     initBoard();
 
     gl.clear( gl.COLOR_BUFFER_BIT );
-
+    // Turn off rendering to alpha
+    
     // if(currLevel==1) {
     //     logSpeed = .01;
     //     carSpeed = .015;
